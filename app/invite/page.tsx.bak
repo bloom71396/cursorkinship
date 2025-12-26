@@ -80,7 +80,7 @@ export default function InvitePage() {
                 height: '48px',
                 width: '100%',
                 backgroundColor: 'white',
-                border: '1px solid #B6B0AA',
+                border: '1px solid #e7e5e4',
                 borderRadius: '12px',
                 padding: '0 16px',
                 fontSize: '14px',
@@ -95,7 +95,7 @@ export default function InvitePage() {
               style={{
                 height: '48px',
                 width: '100%',
-                backgroundColor: canSubmit ? '#22262A' : '#B6B0AA',
+                backgroundColor: canSubmit ? '#0f172a' : '#A8A29E',
                 color: 'white',
                 borderRadius: '9999px',
                 border: 'none',
@@ -120,7 +120,7 @@ export default function InvitePage() {
           </p>
         </div>
 
-        <div style={{ marginTop: '100px', fontSize: '11px', color: '#B6B0AA', textAlign: 'center', maxWidth: '280px', lineHeight: '1.6' }}>
+        <div style={{ marginTop: '100px', fontSize: '11px', color: '#a8a29e', textAlign: 'center', maxWidth: '280px', lineHeight: '1.6' }}>
           By continuing, you agree to our <span style={{ textDecoration: 'underline' }}>Terms</span> &{' '}
           <span style={{ textDecoration: 'underline' }}>Privacy Policy</span>
         </div>

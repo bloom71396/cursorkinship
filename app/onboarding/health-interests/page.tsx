@@ -1,259 +1,257 @@
-"use client"
+// app/onboarding/health-interests/page.tsx
+'use client'
 
-import { useEffect, useMemo, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { createBrowserClient } from "@supabase/ssr"
-import Base44Shell from "@/components/onboarding/Base44Shell"
-import MultiSelectPills from "@/components/ui/MultiSelectPills"
-import { getNextStep } from "@/lib/onboarding"
+import React, { useMemo, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import Base44Shell from '@/components/onboarding/Base44Shell'
+import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
+import { saveProgress } from '@/lib/saveProgress'
 
-type ProfileData = {
-  health_interests?: string[]
-}
-
-const TOTAL_STEPS = 3
-
-const OPTIONS = [
-  "ADHD",
-  "Anxiety",
-  "Autism / neurodivergent",
-  "Depression",
-  "OCD",
-  "PTSD",
-  "Panic attacks",
-  "Social anxiety",
-  "Bipolar",
-  "Body image",
-  "Disordered eating / binge eating",
-  "Eating disorder",
-  "Weight concerns",
-  "Addiction / recovery",
-  "Trauma",
-  "Grief / loss",
-  "Sleep issues / insomnia",
-  "Chronic fatigue",
-  "Chronic pain",
-  "Migraines / headaches",
-  "Hormonal health",
-  "PCOS",
-  "Endometriosis",
-  "Fertility / trying to conceive",
-  "Pregnancy",
-  "Postpartum",
-  "Menopause / perimenopause",
-  "Gut health / digestion",
-  "IBS / IBD",
-  "Autoimmune conditions",
-  "Thyroid health",
-  "Diabetes / blood sugar",
-  "Weight loss",
-  "Nutrition",
-  "Disordered eating recovery",
-  "Fitness / exercise",
-  "Strength training",
-  "Cardio / endurance",
-  "Yoga / pilates",
-  "Injury recovery",
-  "Physical therapy",
-  "Longevity",
-  "Supplements",
-  "Functional medicine",
-  "Holistic health",
-  "Sexual health / libido",
-  "Heart health / blood pressure",
-  "Asthma",
-  "Allergies",
-  "Skin / acne",
-  "Eczema / psoriasis",
-  "Long COVID",
-  "Cancer",
-  "General wellness",
-  "Stress / burnout",
-  "Loneliness / connection",
-  "Productivity / focus",
-  "Biohacking",
-  "Other",
+const HEALTH_OPTIONS = [
+  'ADHD',
+  'Anxiety',
+  'Autism / neurodivergent',
+  'Depression',
+  'OCD',
+  'PTSD',
+  'Panic attacks',
+  'Social anxiety',
+  'Bipolar',
+  'Body image',
+  'Disordered eating / binge eating',
+  'Eating disorder',
+  'Weight concerns',
+  'Addiction / recovery',
+  'Trauma',
+  'Grief / loss',
+  'Sleep issues / insomnia',
+  'Chronic fatigue',
+  'Chronic pain',
+  'Migraines / headaches',
+  'Hormonal health',
+  'PCOS',
+  'Endometriosis',
+  'Fertility / trying to conceive',
+  'Pregnancy',
+  'Postpartum',
+  'Menopause / perimenopause',
+  'Gut health / digestion',
+  'IBS / IBD',
+  'Autoimmune conditions',
+  'Thyroid health',
+  'Diabetes / blood sugar',
+  'Weight loss',
+  'Nutrition',
+  'Disordered eating recovery',
+  'Fitness / exercise',
+  'Strength training',
+  'Cardio / endurance',
+  'Yoga / pilates',
+  'Injury recovery',
+  'Physical therapy',
+  'Longevity',
+  'Supplements',
+  'Functional medicine',
+  'Holistic health',
+  'Sexual health / libido',
+  'Heart health / blood pressure',
+  'Asthma',
+  'Allergies',
+  'Skin / acne',
+  'Eczema / psoriasis',
+  'Long COVID',
+  'Cancer',
+  'General wellness',
+  'Stress / burnout',
 ]
 
-const CARD = "rounded-3xl border border-stone-200 bg-white/80 p-6"
+const CARD: React.CSSProperties = {
+  width: '100%',
+  maxWidth: 760,
+  margin: '0 auto',
+  padding: 24,
+  borderRadius: 18,
+  border: '1px solid #E6DFD7',
+  background: '#fff',
+  boxSizing: 'border-box',
+}
 
-const normalize = (s: string) => s.trim().replace(/\s+/g, " ")
+const pillsWrap: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  gap: 8,
+}
 
-function dedupePreserveOrder(list: string[]) {
-  const seen = new Set<string>()
-  const out: string[] = []
-  for (const raw of list) {
-    const v = normalize(raw)
-    const k = v.toLowerCase()
-    if (!v) continue
-    if (seen.has(k)) continue
-    seen.add(k)
-    out.push(v)
+function pillStyle(isOn: boolean): React.CSSProperties {
+  return {
+    padding: '6px 12px',
+    borderRadius: 999,
+    border: isOn ? '1px solid #22262A' : '1px solid #C9C1B8',
+    background: isOn ? '#22262A' : '#fff',
+    color: isOn ? '#fff' : '#22262A',
+    fontSize: 13,
+    lineHeight: 1.1,
+    cursor: 'pointer',
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
   }
-  return out
+}
+
+const inputStyle: React.CSSProperties = {
+  height: 44,
+  width: '100%',
+  borderRadius: 12,
+  border: '1px solid #C9C1B8',
+  padding: '0 14px',
+  fontSize: 14,
+  outline: 'none',
+  boxSizing: 'border-box',
+}
+
+function addBtnStyle(enabled: boolean): React.CSSProperties {
+  return {
+    height: 44,
+    padding: '0 14px',
+    borderRadius: 12,
+    border: '1px solid #C9C1B8',
+    background: enabled ? '#3A3F45' : '#F1EDE8',
+    color: enabled ? '#FFFFFF' : '#8F887F',
+    fontSize: 14,
+    cursor: enabled ? 'pointer' : 'default',
+    transition: 'background 120ms ease, color 120ms ease',
+    whiteSpace: 'nowrap',
+  }
 }
 
 export default function Page() {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const nextParam: string | null = searchParams.get("next")
 
-  const supabase = useMemo(
-    () =>
-      createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      ),
-    []
-  )
+  const totalSteps = getTotalSteps()
+  const step = getStepNumber(pathname)
+  const nextPath = useMemo(() => getNextStep(pathname), [pathname])
 
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<string[]>([])
+  const [custom, setCustom] = useState('')
 
-  useEffect(() => {
-    let cancelled = false
+  const canContinue = selected.length > 0
+  const canAdd = custom.trim().length > 0
 
-    async function load() {
-      setLoading(true)
-      setError(null)
+  function toggle(label: string) {
+    const normalized = label.trim().replace(/\s+/g, ' ')
+    if (!normalized) return
+    setSelected((prev) =>
+      prev.includes(normalized) ? prev.filter((x) => x !== normalized) : [...prev, normalized]
+    )
+  }
 
-      const {
-        data: { user },
-        error: userErr,
-      } = await supabase.auth.getUser()
-
-      if (cancelled) return
-
-      if (userErr || !user) {
-        setLoading(false)
-        router.replace(`/onboarding/auth?next=${encodeURIComponent(pathname)}`)
-        return
-      }
-
-      const { data, error: dbErr } = await supabase
-        .from("user_profiles")
-        .select("profile_data")
-        .eq("user_id", user.id)
-        .maybeSingle()
-
-      if (cancelled) return
-
-      if (dbErr) {
-        setError(dbErr.message)
-        setLoading(false)
-        return
-      }
-
-      const pd = (data?.profile_data ?? {}) as ProfileData
-      setSelected(dedupePreserveOrder(pd.health_interests ?? []))
-      setLoading(false)
-    }
-
-    load()
-    return () => {
-      cancelled = true
-    }
-  }, [pathname, router, supabase])
+  function addCustom() {
+    const normalized = custom.trim().replace(/\s+/g, ' ')
+    if (!normalized) return
+    if (!selected.includes(normalized)) setSelected((prev) => [...prev, normalized])
+    setCustom('')
+  }
 
   async function onContinue() {
-    if (saving) return
-    setSaving(true)
-    setError(null)
+    if (!canContinue) return
 
-    const {
-      data: { user },
-      error: userErr,
-    } = await supabase.auth.getUser()
+    const res = await saveProgress({
+      onboarding_step_path: pathname,
+      profile_data: { health_interests: selected },
+    })
 
-    if (userErr || !user) {
-      setSaving(false)
-      router.replace(`/onboarding/auth?next=${encodeURIComponent(pathname)}`)
-      return
-    }
-
-    const health_interests = dedupePreserveOrder(selected)
-
-    const { data: existingRow, error: readErr } = await supabase
-      .from("user_profiles")
-      .select("profile_data")
-      .eq("user_id", user.id)
-      .maybeSingle()
-
-    if (readErr) {
-      setSaving(false)
-      setError(readErr.message)
-      return
-    }
-
-    const existingData = (existingRow?.profile_data ?? {}) as Record<string, unknown>
-    const newProfileData = { ...existingData, health_interests }
-
-    const { error: upsertErr } = await supabase.from("user_profiles").upsert(
-      {
-        user_id: user.id,
-        onboarding_step: "health-interests",
-        profile_data: newProfileData,
-      },
-      { onConflict: "user_id" }
-    )
-
-    if (upsertErr) {
-      setSaving(false)
-      setError(upsertErr.message)
-      return
-    }
-
-    const safeNext =
-      nextParam && nextParam.startsWith("/onboarding/") ? nextParam : null
-
-    router.push(safeNext ?? getNextStep(pathname))
+    if (!res?.ok) return
+    router.push(nextPath)
   }
 
   return (
     <Base44Shell
-      step={3}
-      totalSteps={TOTAL_STEPS}
-      title="What health goals are top of mind?"
+      step={step}
+      totalSteps={totalSteps}
+      title="What health goals or interests are top of mind?"
       subtitle="Pick a few. You can add your own too."
     >
-      <div className={CARD}>
-        {error ? (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+      <div style={CARD}>
+        <div style={pillsWrap}>
+          {HEALTH_OPTIONS.map((label) => {
+            const isOn = selected.includes(label)
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => toggle(label)}
+                style={pillStyle(isOn)}
+              >
+                {label}
+              </button>
+            )
+          })}
+
+          {selected
+            .filter((x) => !HEALTH_OPTIONS.includes(x))
+            .map((label) => {
+              const isOn = selected.includes(label)
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => toggle(label)}
+                  style={pillStyle(isOn)}
+                >
+                  {label}
+                </button>
+              )
+            })}
+        </div>
+
+        <div style={{ marginTop: 18, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: 600 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                value={custom}
+                onChange={(e) => setCustom(e.target.value)}
+                placeholder="Add your own…"
+                style={inputStyle}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    addCustom()
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={addCustom}
+                disabled={!canAdd}
+                style={addBtnStyle(canAdd)}
+              >
+                Add
+              </button>
+            </div>
           </div>
-        ) : null}
+        </div>
 
-        <MultiSelectPills
-          options={OPTIONS}
-          selected={selected}
-          onChange={(next) => setSelected(dedupePreserveOrder(next))}
-          helperText="Select all that apply."
-          allowCustom={true}
-          customTitle="Don’t see yours? Add your own."
-          customPlaceholder="Type and press Enter"
-          addButtonText="Add"
-        />
-
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-xs text-stone-500">
-            {loading ? "Loading…" : `${selected.length} selected`}
-          </div>
-
+        <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
           <button
             type="button"
-            disabled={loading || saving || selected.length === 0}
             onClick={onContinue}
-            className={[
-              "rounded-xl px-5 py-2 text-sm font-medium transition",
-              loading || saving || selected.length === 0
-                ? "bg-stone-200 text-stone-500"
-                : "bg-slate-900 text-white hover:bg-slate-800",
-            ].join(" ")}
+            disabled={!canContinue}
+            style={{
+              height: 48,
+              width: '100%',
+              maxWidth: 600,
+              borderRadius: 999,
+              background: canContinue ? '#22262A' : '#B6B0AA',
+              color: '#fff',
+              border: 'none',
+              fontSize: 15,
+              fontWeight: 500,
+              cursor: canContinue ? 'pointer' : 'default',
+              transition: 'background 120ms ease',
+            }}
           >
-            {saving ? "Saving…" : "Continue"}
+            Continue
           </button>
         </div>
       </div>

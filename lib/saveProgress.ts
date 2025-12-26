@@ -1,40 +1,80 @@
 // lib/saveProgress.ts
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { getSupabaseBrowserClient } from '@/lib/supabase/browser'
 
-type SaveProgressArgs = {
-  step: string; // e.g. "username"
-  stepPath: string; // e.g. "/onboarding/username"
-  data?: Record<string, any>;
-  complete?: boolean;
-};
+export type SaveProgressPayload = {
+  onboarding_step_path?: string
+  profile_data?: Record<string, any>
+  onboarding_complete?: boolean
 
+  // Allow callers to pass extra keys (e.g. `step`) without TypeScript errors.
+  // We will ignore anything we don't use.
+  [key: string]: any
+}
+
+type SaveProgressResult =
+  | { ok: true }
+  | { ok: false; error: string; details?: any }
+
+function isSupabaseClient(x: any): x is SupabaseClient {
+  return !!x && typeof x === 'object' && typeof x.from === 'function'
+}
+
+// Overloads
+export async function saveProgress(payload: SaveProgressPayload): Promise<SaveProgressResult>
 export async function saveProgress(
-  supabase: SupabaseClient,
-  args: SaveProgressArgs
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const { data: userRes, error: userErr } = await supabase.auth.getUser();
-  if (userErr) return { ok: false, error: userErr.message };
+  client: SupabaseClient,
+  payload: SaveProgressPayload
+): Promise<SaveProgressResult>
 
-  const user = userRes?.user;
-  if (!user) return { ok: false, error: "Not authenticated" };
+// Implementation
+export async function saveProgress(
+  arg1: SaveProgressPayload | SupabaseClient,
+  arg2?: SaveProgressPayload
+): Promise<SaveProgressResult> {
+  const client = isSupabaseClient(arg1) ? arg1 : getSupabaseBrowserClient()
+  const payload = (isSupabaseClient(arg1) ? arg2 : arg1) as SaveProgressPayload
 
-  const payload: Record<string, any> = {
-    user_id: user.id,
-    onboarding_step: args.step,
-    onboarding_step_path: args.stepPath,
-    onboarding_complete: !!args.complete,
-    updated_at: new Date().toISOString(),
-  };
+  if (!payload) return { ok: false, error: 'Missing payload' }
 
-  // Store step payloads inside the existing jsonb "profile" column
-  if (args.data && Object.keys(args.data).length > 0) {
-    payload.profile = args.data;
+  const { onboarding_step_path, profile_data = {}, onboarding_complete } = payload
+
+  const { data: auth, error: authErr } = await client.auth.getUser()
+  if (authErr) return { ok: false, error: authErr.message, details: authErr }
+  const user = auth?.user
+  if (!user) return { ok: false, error: 'No authenticated user' }
+
+  // Merge profile_data
+  const { data: existingRow, error: readErr } = await client
+    .from('user_profiles')
+    .select('profile_data')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (readErr) return { ok: false, error: readErr.message, details: readErr }
+
+  const mergedProfileData = {
+    ...(existingRow?.profile_data ?? {}),
+    ...(profile_data ?? {}),
   }
 
-  const { error } = await supabase
-    .from("user_profiles")
-    .upsert(payload, { onConflict: "user_id" });
+  const upsertPayload: Record<string, any> = {
+    user_id: user.id,
+    profile_data: mergedProfileData,
+  }
 
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  if (typeof onboarding_step_path === 'string') {
+    upsertPayload.onboarding_step_path = onboarding_step_path
+  }
+  if (typeof onboarding_complete === 'boolean') {
+    upsertPayload.onboarding_complete = onboarding_complete
+  }
+
+  const { error: upsertErr } = await client
+    .from('user_profiles')
+    .upsert(upsertPayload, { onConflict: 'user_id' })
+
+  if (upsertErr) return { ok: false, error: upsertErr.message, details: upsertErr }
+
+  return { ok: true }
 }

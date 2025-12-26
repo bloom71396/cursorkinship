@@ -6,17 +6,19 @@ type Props = {
   options: string[];
   selected: string[];
   onChange: (nextSelected: string[]) => void;
-
-  helperText?: string; // e.g. "Select all that apply."
+  helperText?: string;
   allowCustom?: boolean;
-  customTitle?: string; // e.g. "Don’t see yourself? Add your own."
-  customPlaceholder?: string; // e.g. "Type and press Enter"
-  addButtonText?: string; // e.g. "Add"
-
-  pillMaxLabelWidth?: number; // default 320
+  customTitle?: string;
+  customPlaceholder?: string;
+  addButtonText?: string;
+  pillMaxLabelWidth?: number;
 };
 
 const normalize = (s: string) => s.trim().replace(/\s+/g, " ");
+
+// Constants for the new color palette
+const COLOR_CHARCOAL = "#22262A";
+const COLOR_GREIGE = "#B6B0AA";
 
 export default function MultiSelectPills({
   options,
@@ -44,30 +46,26 @@ export default function MultiSelectPills({
     );
   }
 
-  function remove(label: string) {
-    onChange(selected.filter((x) => x !== label));
-  }
-
   function addCustom() {
     const v = normalize(customValue);
     if (!v) return;
-
     if (!selected.includes(v)) onChange([...selected, v]);
     setCustomValue("");
   }
 
+  const isAddDisabled = !customValue.trim();
+
   return (
     <div style={{ width: "100%" }}>
-      {helperText ? (
-        <div style={{ fontSize: 13, color: "#78716c", marginBottom: 14 }}>
+      {helperText && (
+        <div style={{ fontSize: 13, color: "#78716C", marginBottom: 16 }}>
           {helperText}
         </div>
-      ) : null}
+      )}
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
         {displayOptions.map((label) => {
           const active = selected.includes(label);
-
           return (
             <button
               key={label}
@@ -78,104 +76,57 @@ export default function MultiSelectPills({
                 alignItems: "center",
                 gap: 8,
                 borderRadius: 9999,
-                padding: "8px 12px",
+                padding: "10px 16px",
                 fontSize: 14,
-                border: `1px solid ${active ? "#0f172a" : "#e7e5e4"}`,
-                background: active ? "#0f172a" : "rgba(255,255,255,0.85)",
-                color: active ? "white" : "#1c1917",
+                // PILLS: White unpressed, Charcoal pressed
+                border: `1px solid ${active ? COLOR_CHARCOAL : COLOR_GREIGE}`,
+                background: active ? COLOR_CHARCOAL : "#ffffff",
+                color: active ? "white" : COLOR_CHARCOAL,
                 cursor: "pointer",
-                userSelect: "none",
+                transition: "all 0.2s ease",
               }}
             >
-              <span
-                style={{
-                  maxWidth: pillMaxLabelWidth,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span style={{ maxWidth: pillMaxLabelWidth, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {label}
               </span>
-
-              {active ? (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    remove(label);
-                  }}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 999,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(255,255,255,0.18)",
-                    fontSize: 16,
-                    cursor: "pointer",
-                  }}
-                  aria-label={`Remove ${label}`}
-                  title="Remove"
-                >
-                  ×
-                </span>
-              ) : null}
+              {active && <span style={{ fontSize: 18, lineHeight: 0 }}>×</span>}
             </button>
           );
         })}
       </div>
 
-      {allowCustom ? (
-        <div
-          style={{
-            marginTop: 24,
-            paddingTop: 18,
-            borderTop: "1px solid #e7e5e4",
-          }}
-        >
-          <div style={{ fontSize: 14, fontWeight: 500 }}>{customTitle}</div>
-
-          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+      {allowCustom && (
+        <div style={{ marginTop: 32, paddingTop: 24, borderTop: `1px solid ${COLOR_GREIGE}` }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: COLOR_CHARCOAL }}>{customTitle}</div>
+          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
             <input
               value={customValue}
               onChange={(e) => setCustomValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addCustom();
-                }
-              }}
               placeholder={customPlaceholder}
               style={{
-                flex: 1,
-                height: 44,
-                borderRadius: 16,
-                border: "1px solid #e7e5e4",
-                padding: "0 14px",
-                fontSize: 14,
-                background: "rgba(255,255,255,0.9)",
-                outline: "none",
+                flex: 1, height: 48, borderRadius: 12, border: `1px solid ${COLOR_GREIGE}`,
+                padding: "0 16px", fontSize: 14, background: "rgba(255,255,255,0.8)", outline: "none"
               }}
             />
             <button
               type="button"
               onClick={addCustom}
+              disabled={isAddDisabled}
               style={{
-                height: 44,
-                borderRadius: 16,
-                padding: "0 16px",
-                background: "#0f172a",
-                color: "white",
-                border: "1px solid #0f172a",
-                cursor: "pointer",
+                height: 48, borderRadius: 12, padding: "0 20px", fontSize: 14, fontWeight: 500,
+                // ADD BUTTON: Greige when disabled, Charcoal when enabled
+                background: isAddDisabled ? COLOR_GREIGE : COLOR_CHARCOAL,
+                color: isAddDisabled ? "#A8A29E" : "white",
+                border: "none",
+                cursor: isAddDisabled ? "default" : "pointer",
+                transition: "background 0.2s"
               }}
             >
               {addButtonText}
             </button>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

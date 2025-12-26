@@ -35,7 +35,7 @@ export default function Page() {
     },
     {
       icon: '🛡️',
-      title: 'No en agendas',
+      title: 'No hidden agendas',
       description:
         'Recommendations stay honest. Providers and brands must disclose roles or affiliations, and self-promotion is not allowed.',
     },
@@ -97,7 +97,7 @@ export default function Page() {
                     width: '28px',
                     height: '28px',
                     borderRadius: '9999px',
-                    background: 'rgba(15, 23, 42, 0.06)',
+                    background: 'rgba(34, 38, 42, 0.06)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -141,7 +141,7 @@ export default function Page() {
             style={{
               height: '48px',
               width: '100%',
-              backgroundColor: canSubmit ? '#0f172a' : '#A8A29E',
+              backgroundColor: canSubmit ? '#22262A' : '#B6B0AA',
               color: 'white',
               borderRadius: '9999px',
               border: 'none',

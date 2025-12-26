@@ -15,25 +15,26 @@ export const ONBOARDING_STEPS = [
   "/onboarding/kins",
 ] as const;
 
-export type OnboardingStepPath = (typeof ONBOARDING_STEPS)[number];
+export type OnboardingPath = (typeof ONBOARDING_STEPS)[number]
 
-export function isValidOnboardingPath(path: string): path is OnboardingStepPath {
-  return ONBOARDING_STEPS.includes(path as OnboardingStepPath);
+export function getTotalSteps() {
+  return ONBOARDING_STEPS.length
 }
 
-export function getStepNumber(path: string): number {
-  const index = ONBOARDING_STEPS.indexOf(path as any);
-  return index !== -1 ? index + 1 : 1;
+export function isValidOnboardingPath(path?: string | null): path is OnboardingPath {
+  if (!path) return false
+  return (ONBOARDING_STEPS as readonly string[]).includes(path)
 }
 
-export function getTotalSteps(): number {
-  return ONBOARDING_STEPS.length;
+export function getStepNumber(path?: string | null) {
+  if (!path) return 1
+  const idx = ONBOARDING_STEPS.indexOf(path as OnboardingPath)
+  return idx >= 0 ? idx + 1 : 1
 }
 
-export function getNextStep(currentPath: string): string {
-  const currentIndex = ONBOARDING_STEPS.indexOf(currentPath as any);
-  if (currentIndex !== -1 && currentIndex < ONBOARDING_STEPS.length - 1) {
-    return ONBOARDING_STEPS[currentIndex + 1];
-  }
-  return "/dashboard";
+export function getNextStep(current?: string | null) {
+  if (!current) return ONBOARDING_STEPS[0]
+  const idx = ONBOARDING_STEPS.indexOf(current as OnboardingPath)
+  if (idx < 0) return ONBOARDING_STEPS[0]
+  return ONBOARDING_STEPS[Math.min(idx + 1, ONBOARDING_STEPS.length - 1)]
 }

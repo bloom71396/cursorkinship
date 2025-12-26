@@ -127,24 +127,24 @@ export default function Page() {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className={[
-              "flex-1 rounded-xl border px-3 py-2 text-sm",
+            className="flex-1 rounded-xl border px-3 py-2 text-sm"
+            style={
               mode === "signup"
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-200 bg-white text-neutral-900",
-            ].join(" ")}
+                ? { borderColor: "#22262A", backgroundColor: "#22262A", color: "white" }
+                : { borderColor: "#B6B0AA", backgroundColor: "white", color: "#22262A" }
+            }
           >
             Sign up
           </button>
           <button
             type="button"
             onClick={() => setMode("login")}
-            className={[
-              "flex-1 rounded-xl border px-3 py-2 text-sm",
+            className="flex-1 rounded-xl border px-3 py-2 text-sm"
+            style={
               mode === "login"
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-200 bg-white text-neutral-900",
-            ].join(" ")}
+                ? { borderColor: "#22262A", backgroundColor: "#22262A", color: "white" }
+                : { borderColor: "#B6B0AA", backgroundColor: "white", color: "#22262A" }
+            }
           >
             Log in
           </button>
@@ -171,12 +171,11 @@ export default function Page() {
             type="button"
             disabled={loading || !email || !password}
             onClick={onSubmit}
-            className={[
-              "w-full rounded-xl px-4 py-2 text-sm font-medium transition",
-              loading || !email || !password
-                ? "bg-neutral-200 text-neutral-500"
-                : "bg-neutral-900 text-white hover:bg-neutral-800",
-            ].join(" ")}
+            className="w-full rounded-xl px-4 py-2 text-sm font-medium transition"
+            style={{
+              backgroundColor: loading || !email || !password ? "#B6B0AA" : "#22262A",
+              color: loading || !email || !password ? "#A8A29E" : "white",
+            }}
           >
             {loading ? "Working…" : mode === "signup" ? "Create account" : "Log in"}
           </button>

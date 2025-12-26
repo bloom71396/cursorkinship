@@ -5,35 +5,54 @@ import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
-import { getSupabaseBrowserClient } from '@/lib/supabase/browser'
 import InviteStyleButton from '@/components/ui/InviteStyleButton'
 import Pill from '@/components/ui/Pill'
 
 const DEFAULT_OPTIONS = [
-  'Living alone',
-  'Living with roommates',
-  'Living with partner',
-  'Living with parents / family',
-  'Multigenerational household',
-  'Bought a home',
-  'Renovating / moving',
-  'New pet owner',
-  'Training for something',
-  'Aesthetic goals',
-  'Athlete / high activity',
-  'Low energy / burnout era',
-  'Menopause / perimenopause',
-  'Retired',
-  'Caregiving for aging parent',
-  'Traveling a lot',
-  'High-stress season',
-  'Trying to get my life together (same)',
+  // Relationship / living situation
+  "Single city life",
+  "Single / Dating",
+  "In a couple",
+  "Married / Long-term partnered",
+  "Living with roommates",
+  "Living alone",
+  "Living with parents / moved back home",
+
+  // Big milestones
+  "Pre-wedding",
+  "Aesthetic goals",
+  "Recently moved to a new city",
+
+  // School / work
+  "College student",
+  "Grad student",
+  "Gap year",
+  "Early career",
+  "Career-focused",
+  "Career pivot",
+  "Going back to school",
+  "Remote / hybrid worker",
+
+  // Parenting & family
+  "Pregnant",
+  "Trying to conceive / fertility journey",
+  "Postpartum",
+  "New parent",
+  "Single parent",
+  "Parenting young kids",
+  "Parenting teens",
+  "Empty nester",
+
+  // Caregiving / later life
+  "Caregiver for parent",
+  "Caregiver for partner or child",
+  "Perimenopause / menopause",
+  "Retirement / semi-retirement",
 ]
 
 export default function Page() {
   const router = useRouter()
   const pathname = usePathname()
-  const supabase = useMemo(() => getSupabaseBrowserClient(), [])
 
   const [selected, setSelected] = useState<string[]>([])
   const [custom, setCustom] = useState<string[]>([])
@@ -83,10 +102,11 @@ export default function Page() {
     setSaving(true)
     setError(null)
 
-    const res = await saveProgress(supabase, {
-      step: 'life-stage',
-      stepPath: pathname,
-      data: {
+    const next = getNextStep(pathname)
+
+    const res = await saveProgress({
+      onboarding_step_path: next,
+      profile_data: {
         life_stage_selected: selected,
         life_stage_custom: custom,
       },
@@ -98,7 +118,7 @@ export default function Page() {
       return
     }
 
-    router.push(getNextStep(pathname))
+    router.push(next)
   }
 
   return (
@@ -150,11 +170,11 @@ export default function Page() {
                   flex: '1 1 320px',
                   minWidth: '260px',
                   backgroundColor: 'white',
-                  border: '1px solid #e7e5e4',
+                  border: '1px solid #B6B0AA',
                   borderRadius: '12px',
                   padding: '0 16px',
                   fontSize: '14px',
-                color: '#44403c',
+                  color: '#44403c',
                   boxSizing: 'border-box',
                 }}
               />
@@ -165,7 +185,7 @@ export default function Page() {
                 style={{
                   height: '48px',
                   padding: '0 18px',
-                  backgroundColor: '#0f172a',
+                  backgroundColor: '#22262A',
                   color: 'white',
                   borderRadius: '12px',
                   border: 'none',
@@ -186,7 +206,7 @@ export default function Page() {
               <InviteStyleButton canSubmit={canSubmit} loading={saving} onClick={onContinue}>
                 {saving ? 'Saving…' : 'Continue'}
               </InviteStyleButton>
-          </div>
+            </div>
           </div>
         </div>
       </div>
