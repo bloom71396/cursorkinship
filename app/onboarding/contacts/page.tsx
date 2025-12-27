@@ -12,20 +12,21 @@ const CARD: React.CSSProperties = {
   margin: '0 auto',
   padding: 24,
   borderRadius: 18,
-  border: '1px solid #E6DFD7',
-  background: '#fff',
+  border: '1px solid transparent',
+  background: 'transparent',
   boxSizing: 'border-box',
 }
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
   borderRadius: 12,
-  border: '1px solid #C9C1B8',
+  border: '1px solid #EBE7E0',
   padding: '12px 14px',
   fontSize: 14,
   outline: 'none',
   boxSizing: 'border-box',
   resize: 'none',
+  background: '#FDFDFD',
 }
 
 function primaryBtnStyle(enabled: boolean): React.CSSProperties {
@@ -33,9 +34,9 @@ function primaryBtnStyle(enabled: boolean): React.CSSProperties {
     height: 48,
     width: '100%',
     borderRadius: 999,
-    background: enabled ? '#22262A' : '#B6B0AA',
-    color: '#fff',
-    border: 'none',
+    background: enabled ? '#FDFDFD' : '#D9D2C9',
+    color: '#2D2926',
+    border: '1px solid #EBE7E0',
     fontSize: 15,
     fontWeight: 500,
     cursor: enabled ? 'pointer' : 'default',
@@ -60,13 +61,13 @@ function softBtnStyle(enabled: boolean): React.CSSProperties {
     height: 48,
     width: '100%',
     borderRadius: 999,
-    background: '#F1EDE8',
-    color: enabled ? '#22262A' : '#8F887F',
-    border: '1px solid #C9C1B8',
+    background: '#FDFDFD',
+    color: '#2D2926',
+    border: '1px solid #EBE7E0',
     fontSize: 15,
     fontWeight: 500,
     cursor: enabled ? 'pointer' : 'default',
-    transition: 'background 120ms ease, color 120ms ease',
+    transition: 'background 120ms ease',
   }
 }
 
@@ -205,7 +206,7 @@ export default function Page() {
       step={step}
       totalSteps={totalSteps}
       title="Social Proximity"
-      subtitle="Sync your contacts so we can prioritize posts from anonymous users you’re mutually connected to."
+      subtitle="Sync your contacts so we can prioritize posts from people you’re mutually connected to. No names, ever."
     >
 <div style={{ maxWidth: 760, margin: '0 auto' }}>
 {error && (
@@ -222,7 +223,27 @@ export default function Page() {
         <div style={{ width: '100%', maxWidth: 600, margin: '0 auto' }}>
           {!showManual && (
             <>
-              <button type="button" onClick={onSyncFromContacts} disabled={loading} style={primaryBtnStyle(!loading)}>
+              <button
+                type="button"
+                onClick={onSyncFromContacts}
+                disabled={loading}
+                style={primaryBtnStyle(!loading)}
+                onMouseDown={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.backgroundColor = '#D9D2C9'
+                  }
+                }}
+                onMouseUp={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.backgroundColor = '#FDFDFD'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.backgroundColor = '#FDFDFD'
+                  }
+                }}
+              >
                 {loading ? 'Syncing…' : 'Sync from contacts'}
               </button>
 
@@ -256,6 +277,21 @@ export default function Page() {
                   onClick={onSaveManual}
                   disabled={loading || !phoneText.trim()}
                   style={primaryBtnStyle(!loading && !!phoneText.trim())}
+                  onMouseDown={(e) => {
+                    if (!loading && phoneText.trim()) {
+                      e.currentTarget.style.backgroundColor = '#D9D2C9'
+                    }
+                  }}
+                  onMouseUp={(e) => {
+                    if (!loading && phoneText.trim()) {
+                      e.currentTarget.style.backgroundColor = '#FDFDFD'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading && phoneText.trim()) {
+                      e.currentTarget.style.backgroundColor = '#FDFDFD'
+                    }
+                  }}
                 >
                   {loading ? 'Saving…' : 'Save contacts'}
                 </button>
@@ -264,7 +300,27 @@ export default function Page() {
           )}
 
           <div style={{ marginTop: 10 }}>
-            <button type="button" onClick={onSkip} disabled={loading} style={softBtnStyle(!loading)}>
+            <button
+              type="button"
+              onClick={onSkip}
+              disabled={loading}
+              style={softBtnStyle(!loading)}
+              onMouseDown={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#D9D2C9'
+                }
+              }}
+              onMouseUp={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
+              }}
+            >
               Skip for now
             </button>
           </div>

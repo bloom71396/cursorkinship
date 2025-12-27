@@ -125,11 +125,11 @@ export default function Page() {
     <Base44Shell
       step={getStepNumber(pathname)}
       totalSteps={getTotalSteps()}
-      title="Life stage"
-      subtitle="Pick what best describes your life right now. Select all that apply."
+      title="What best describes your life right now?"
+      subtitle="People in the same life stage tend to get each other quickly."
     >
       <div style={{ width: '100%', maxWidth: '860px', margin: '0 auto' }}>
-        <div className="glass-card" style={{ width: '100%', padding: '26px', boxSizing: 'border-box' }}>
+        <div style={{ width: '100%', padding: '26px', boxSizing: 'border-box', background: 'transparent' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {options.map((label) => {
               const isSelected = selected.includes(label)
@@ -169,12 +169,12 @@ export default function Page() {
                   height: '48px',
                   flex: '1 1 320px',
                   minWidth: '260px',
-                  backgroundColor: 'white',
-                  border: '1px solid #B6B0AA',
+                  backgroundColor: '#FDFDFD',
+                  border: '1px solid #EBE7E0',
                   borderRadius: '12px',
                   padding: '0 16px',
                   fontSize: '14px',
-                  color: '#44403c',
+                  color: '#2D2926',
                   boxSizing: 'border-box',
                 }}
               />
@@ -185,13 +185,23 @@ export default function Page() {
                 style={{
                   height: '48px',
                   padding: '0 18px',
-                  backgroundColor: '#22262A',
-                  color: 'white',
+                  backgroundColor: '#FDFDFD',
+                  color: '#2D2926',
                   borderRadius: '12px',
-                  border: 'none',
+                  border: '1px solid #EBE7E0',
                   fontSize: '14px',
                   cursor: 'pointer',
                   fontWeight: 400,
+                  transition: 'background 120ms ease',
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.backgroundColor = '#D9D2C9'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
                 }}
               >
                 Add

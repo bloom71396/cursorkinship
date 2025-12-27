@@ -89,6 +89,10 @@ export default function Page() {
     )
   }
 
+  function remove(label: string) {
+    setSelected((prev) => prev.filter((x) => x !== label))
+  }
+
   function addCustom() {
     const v = normalize(custom)
     if (!v) return
@@ -123,8 +127,8 @@ export default function Page() {
     <Base44Shell
       step={step}
       totalSteps={totalSteps}
-      title="Health conditions"
-      subtitle="Select any that apply. You can also add your own."
+      title="Which of these apply to your life or health history?"
+      subtitle="Used to connect you with people who have direct experience."
     >
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
@@ -138,9 +142,9 @@ export default function Page() {
                 style={{
                   padding: '6px 12px',
                   borderRadius: 999,
-                  border: isOn ? '1px solid #22262A' : '1px solid #C9C1B8',
-                  background: isOn ? '#22262A' : '#fff',
-                  color: isOn ? '#fff' : '#22262A',
+                  border: isOn ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+                  background: isOn ? '#D9D2C9' : '#F9F8F6',
+                  color: '#2D2926',
                   fontSize: 13,
                   lineHeight: 1.1,
                   cursor: 'pointer',
@@ -163,18 +167,44 @@ export default function Page() {
                   type="button"
                   onClick={() => toggle(label)}
                   style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
                     padding: '6px 12px',
                     borderRadius: 999,
-                    border: isOn ? '1px solid #22262A' : '1px solid #C9C1B8',
-                    background: isOn ? '#22262A' : '#fff',
-                    color: isOn ? '#fff' : '#22262A',
+                    border: isOn ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+                    background: isOn ? '#D9D2C9' : '#F9F8F6',
+                    color: '#2D2926',
                     fontSize: 13,
                     lineHeight: 1.1,
                     cursor: 'pointer',
                     userSelect: 'none',
                   }}
                 >
-                  {label}
+                  <span>{label}</span>
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      remove(label)
+                    }}
+                    role="button"
+                    aria-label={`Remove ${label}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9999,
+                      backgroundColor: 'rgba(45, 41, 38, 0.1)',
+                      color: '#2D2926',
+                      fontSize: 12,
+                      lineHeight: 1,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ×
+                  </span>
                 </button>
               )
             })}
@@ -197,12 +227,12 @@ export default function Page() {
                 height: 44,
                 width: '100%',
                 borderRadius: 12,
-                border: '1px solid #C9C1B8',
+                border: '1px solid #EBE7E0',
                 padding: '0 14px',
                 fontSize: 14,
                 outline: 'none',
                 boxSizing: 'border-box',
-                background: '#fff',
+                background: '#FDFDFD',
               }}
             />
 
@@ -214,13 +244,28 @@ export default function Page() {
                 height: 44,
                 padding: '0 14px',
                 borderRadius: 12,
-                border: '1px solid #C9C1B8',
-                background: addEnabled ? '#3A3F45' : '#F1EDE8', // lighter charcoal (not harsh black)
-                color: addEnabled ? '#fff' : '#6B6B6B',
+                border: '1px solid #EBE7E0',
+                background: addEnabled ? '#FDFDFD' : '#D9D2C9',
+                color: '#2D2926',
                 fontSize: 14,
                 cursor: addEnabled ? 'pointer' : 'default',
-                transition: 'background 120ms ease, color 120ms ease',
+                transition: 'background 120ms ease',
                 whiteSpace: 'nowrap',
+              }}
+              onMouseDown={(e) => {
+                if (addEnabled) {
+                  e.currentTarget.style.backgroundColor = '#D9D2C9'
+                }
+              }}
+              onMouseUp={(e) => {
+                if (addEnabled) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (addEnabled) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
               }}
             >
               Add
@@ -241,13 +286,28 @@ export default function Page() {
               width: '100%',
               maxWidth: 600,
               borderRadius: 999,
-              background: canContinue ? '#22262A' : '#B6B0AA',
-              color: '#fff',
-              border: 'none',
+              background: canContinue ? '#FDFDFD' : '#D9D2C9',
+              color: '#2D2926',
+              border: '1px solid #EBE7E0',
               fontSize: 15,
               fontWeight: 500,
               cursor: canContinue ? 'pointer' : 'default',
               transition: 'background 120ms ease',
+            }}
+            onMouseDown={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#D9D2C9'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
             }}
           >
             Continue

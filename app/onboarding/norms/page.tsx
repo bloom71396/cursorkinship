@@ -25,19 +25,19 @@ export default function Page() {
       icon: '✓',
       title: 'Vetted people only',
       description:
-        "Every member joins with an invite code, so you're surrounded by real people — not random internet strangers.",
+        "Every member joins through an invite, so you're surrounded by real people — not random internet strangers.",
     },
     {
       icon: '🎭',
   title: 'Anonymous by default',
       description:
-        "Your identity is never disclosed. In Kinship, you're only known as your chosen alias, so you can share openly without being exposed.",
+        "You're known by an alias, so you can share openly without being exposed.",
     },
     {
       icon: '🛡️',
       title: 'No hidden agendas',
       description:
-        'Recommendations stay honest. Providers and brands must disclose roles or affiliations, and self-promotion is not allowed.',
+        'Providers and brands must disclose roles or affiliations. Self-promotion is not allowed.',
     },
   ]
 
@@ -68,15 +68,15 @@ export default function Page() {
       step={getStepNumber(pathname)}
       totalSteps={getTotalSteps()}
       title="Why Kinship is Different"
-      subtitle="What makes connections here trustworthy"
+      subtitle="What makes advice and people here worth trusting"
     >
       <div style={{ width: '100%', maxWidth: '560px', margin: '0 auto' }}>
         <div
-          className="glass-card"
           style={{
             width: '100%',
             padding: '30px',
             boxSizing: 'border-box',
+            background: 'transparent',
           }}
         >
           <div
@@ -141,15 +141,31 @@ export default function Page() {
             style={{
               height: '48px',
               width: '100%',
-              backgroundColor: canSubmit ? '#22262A' : '#B6B0AA',
-              color: 'white',
+              backgroundColor: canSubmit ? '#FDFDFD' : '#D9D2C9',
+              color: '#2D2926',
               borderRadius: '9999px',
-              border: 'none',
+              border: '1px solid #EBE7E0',
               fontSize: '14px',
               cursor: canSubmit ? 'pointer' : 'not-allowed',
               fontWeight: '400',
               opacity: saving ? 0.85 : 1,
               marginTop: '22px',
+              transition: 'background 120ms ease',
+            }}
+            onMouseDown={(e) => {
+              if (canSubmit) {
+                e.currentTarget.style.backgroundColor = '#D9D2C9'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (canSubmit) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canSubmit) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
             }}
           >
             {saving ? 'Saving…' : 'Enter Kinship'}

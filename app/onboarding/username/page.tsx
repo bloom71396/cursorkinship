@@ -93,8 +93,8 @@ const CARD: React.CSSProperties = {
   margin: '0 auto',
   padding: 24,
   borderRadius: 18,
-  border: '1px solid #E6DFD7',
-  background: '#fff',
+  border: '1px solid transparent',
+  background: 'transparent',
   boxSizing: 'border-box',
 }
 
@@ -102,12 +102,12 @@ const inputStyle: React.CSSProperties = {
   height: 44,
   width: '100%',
   borderRadius: 12,
-  border: '1px solid #C9C1B8',
+  border: '1px solid #EBE7E0',
   padding: '0 14px',
   fontSize: 14,
   outline: 'none',
   boxSizing: 'border-box',
-  background: '#fff',
+  background: '#FDFDFD',
 }
 
 const labelStyle: React.CSSProperties = {
@@ -121,12 +121,13 @@ const shuffleBtnStyle: React.CSSProperties = {
   height: 44,
   padding: '0 14px',
   borderRadius: 12,
-  border: '1px solid #C9C1B8',
-  background: '#F1EDE8',
-  color: '#22262A',
+  border: '1px solid #EBE7E0',
+  background: '#FDFDFD',
+  color: '#2D2926',
   fontSize: 14,
   cursor: 'pointer',
   whiteSpace: 'nowrap',
+  transition: 'background 120ms ease',
 }
 
 /* ---------- UNIQUENESS CHECK ---------- */
@@ -252,7 +253,27 @@ export default function Page() {
             <div style={labelStyle}>Alias *</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <input value={alias} onChange={(e) => setAlias(e.target.value)} style={inputStyle} />
-              <button type="button" onClick={onShuffle} style={shuffleBtnStyle} disabled={loading}>
+              <button
+                type="button"
+                onClick={onShuffle}
+                style={shuffleBtnStyle}
+                disabled={loading}
+                onMouseDown={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.backgroundColor = '#D9D2C9'
+                  }
+                }}
+                onMouseUp={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.backgroundColor = '#FDFDFD'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.backgroundColor = '#FDFDFD'
+                  }
+                }}
+              >
                 {loading ? '…' : 'Pick for me'}
               </button>
             </div>
@@ -269,13 +290,28 @@ export default function Page() {
                 height: 48,
                 width: '100%',
                 borderRadius: 999,
-                background: canContinue ? '#22262A' : '#B6B0AA',
-                color: '#fff',
-                border: 'none',
+                background: canContinue ? '#FDFDFD' : '#D9D2C9',
+                color: '#2D2926',
+                border: '1px solid #EBE7E0',
                 fontSize: 15,
                 fontWeight: 500,
                 cursor: canContinue ? 'pointer' : 'default',
                 transition: 'background 120ms ease',
+              }}
+              onMouseDown={(e) => {
+                if (canContinue) {
+                  e.currentTarget.style.backgroundColor = '#D9D2C9'
+                }
+              }}
+              onMouseUp={(e) => {
+                if (canContinue) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (canContinue) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
               }}
             >
               Continue

@@ -7,7 +7,6 @@ import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 
 const OPTIONS = [
-  // Gender identity
   'Woman',
   'Man',
   'Non-binary',
@@ -16,9 +15,7 @@ const OPTIONS = [
   'Gender non-conforming',
   'Agender',
   'Intersex',
-  'Prefer not to say',
 
-  // Sexual orientation
   'Straight / heterosexual',
   'Gay',
   'Lesbian',
@@ -27,26 +24,6 @@ const OPTIONS = [
   'Asexual',
   'Queer',
 
-  // Religion / faith
-  'Christian',
-  'Catholic',
-  'Jewish',
-  'Muslim',
-  'Hindu',
-  'Buddhist',
-  'Sikh',
-  'Jain',
-  'Taoist',
-  'Baháʼí',
-  'Mormon (LDS)',
-  'Orthodox Christian',
-  'Evangelical',
-  'Spiritual but not religious',
-  'Agnostic',
-  'Atheist',
-  'Formerly religious',
-
-  // Cultural / social identity
   'Person of color',
   'Black / African diaspora',
   'Latina / Latino / Latine',
@@ -59,7 +36,18 @@ const OPTIONS = [
   'Child of immigrants',
   'First-generation',
 
-  // Enduring life experiences (identity-level, not life stage)
+  'Christian',
+  'Catholic',
+  'Jewish',
+  'Muslim',
+  'Hindu',
+  'Buddhist',
+  'Sikh',
+  'Spiritual but not religious',
+  'Agnostic',
+  'Atheist',
+  'Formerly religious',
+
   'Lost a parent',
   'Lost a sibling',
   'Lost a partner',
@@ -74,7 +62,6 @@ const OPTIONS = [
   'Caregiver to a parent',
   'Financially supporting family',
 
-  // Ongoing lenses
   'Neurodivergent',
   'Disabled',
   'Living with chronic illness',
@@ -130,38 +117,74 @@ export default function Page() {
     <Base44Shell
       step={step}
       totalSteps={totalSteps}
-      title="Identity"
-      subtitle="Select anything that feels true to who you are or what’s shaped you."
+      title="What feels true to who you are or what's shaped you?"
+      subtitle="Surface people you won't have to explain yourself to."
     >
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+        {/* Pills */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 8,
+          }}
+        >
           {[...OPTIONS, ...selected.filter((x) => !OPTIONS.includes(x))].map((label) => {
             const isOn = selected.includes(label)
+            const isCustom = !OPTIONS.includes(label)
+
             return (
               <button
                 key={label}
                 type="button"
                 onClick={() => toggle(label)}
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
                   padding: '6px 12px',
                   borderRadius: 999,
-                  border: isOn ? '1px solid #22262A' : '1px solid #C9C1B8',
-                  background: isOn ? '#22262A' : '#fff',
-                  color: isOn ? '#fff' : '#22262A',
+                  border: isOn ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+                  background: isOn ? '#D9D2C9' : '#F9F8F6',
+                  color: '#2D2926',
                   fontSize: 13,
                   lineHeight: 1.1,
                   cursor: 'pointer',
                   userSelect: 'none',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                {label}
+                <span>{label}</span>
+
+                {isCustom && (
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelected((prev) => prev.filter((x) => x !== label))
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 18,
+                      height: 18,
+                      borderRadius: 999,
+                      background: 'rgba(45, 41, 38, 0.1)',
+                      fontSize: 12,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ×
+                  </span>
+                )}
               </button>
             )
           })}
         </div>
 
         {/* Add your own */}
-        <div style={{ marginTop: 18, maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ marginTop: 18, maxWidth: 600, marginInline: 'auto' }}>
           <div style={{ display: 'flex', gap: 8 }}>
             <input
               value={custom}
@@ -177,12 +200,11 @@ export default function Page() {
                 height: 44,
                 width: '100%',
                 borderRadius: 12,
-                border: '1px solid #C9C1B8',
+                border: '1px solid #EBE7E0',
                 padding: '0 14px',
                 fontSize: 14,
                 outline: 'none',
-                boxSizing: 'border-box',
-                background: '#fff',
+                background: '#FDFDFD',
               }}
             />
             <button
@@ -193,23 +215,20 @@ export default function Page() {
                 height: 44,
                 padding: '0 14px',
                 borderRadius: 12,
-                border: '1px solid #C9C1B8',
-                background: addEnabled ? '#3A3F45' : '#F1EDE8',
-                color: addEnabled ? '#fff' : '#6B6B6B',
+                border: '1px solid #EBE7E0',
+                background: addEnabled ? '#FDFDFD' : '#D9D2C9',
+                color: '#2D2926',
                 fontSize: 14,
                 cursor: addEnabled ? 'pointer' : 'default',
-                transition: 'background 120ms ease, color 120ms ease',
                 whiteSpace: 'nowrap',
               }}
             >
               Add
             </button>
           </div>
-
-          <div style={{ marginTop: 8, fontSize: 12, color: '#6B6B6B' }}>
-          </div>
         </div>
 
+        {/* Continue */}
         <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
           <button
             type="button"
@@ -220,9 +239,9 @@ export default function Page() {
               width: '100%',
               maxWidth: 600,
               borderRadius: 999,
-              background: canContinue ? '#22262A' : '#B6B0AA',
-              color: '#fff',
-              border: 'none',
+              background: canContinue ? '#FDFDFD' : '#D9D2C9',
+              color: '#2D2926',
+              border: '1px solid #EBE7E0',
               fontSize: 15,
               fontWeight: 500,
               cursor: canContinue ? 'pointer' : 'default',

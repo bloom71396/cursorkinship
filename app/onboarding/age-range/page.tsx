@@ -50,7 +50,7 @@ export default function Page() {
       profile_data: { age_range: selected },
     })
 
-    if (!res?.ok) return
+    if (!res.ok) return
     router.push(nextPath)
   }
 
@@ -59,9 +59,20 @@ export default function Page() {
       step={step}
       totalSteps={totalSteps}
       title="What’s your age range?"
-      subtitle="This helps match you with people in similar life stages."
+      subtitle="So support feels relatable, not out of touch."
     >
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 760,
+          margin: '0 auto',
+          padding: 24,
+          borderRadius: 18,
+          border: '1px solid transparent',
+          background: 'transparent',
+          boxSizing: 'border-box',
+        }}
+      >
         {/* Pills */}
         <div
           style={{
@@ -81,9 +92,9 @@ export default function Page() {
                 style={{
                   padding: '6px 12px',
                   borderRadius: 999,
-                  border: isSelected ? '1px solid #22262A' : '1px solid #C9C1B8',
-                  background: isSelected ? '#22262A' : '#fff',
-                  color: isSelected ? '#fff' : '#22262A',
+                  border: isSelected ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+                  background: isSelected ? '#D9D2C9' : '#F9F8F6',
+                  color: '#2D2926',
                   fontSize: 13,
                   lineHeight: 1,
                   cursor: 'pointer',
@@ -96,7 +107,7 @@ export default function Page() {
           })}
         </div>
 
-        {/* Continue */}
+        {/* Continue button – EXACT life-stage behavior */}
         <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
           <button
             type="button"
@@ -107,13 +118,28 @@ export default function Page() {
               width: '100%',
               maxWidth: 600,
               borderRadius: 999,
-              background: canContinue ? '#22262A' : '#B6B0AA',
-              color: '#fff',
-              border: 'none',
+              background: canContinue ? '#FDFDFD' : '#D9D2C9',
+              color: '#2D2926',
+              border: '1px solid #EBE7E0',
               fontSize: 15,
               fontWeight: 500,
               cursor: canContinue ? 'pointer' : 'default',
               transition: 'background 120ms ease',
+            }}
+            onMouseDown={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#D9D2C9'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
             }}
           >
             Continue

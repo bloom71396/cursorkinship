@@ -4,7 +4,6 @@
 
 @layer base {
   html, body {
-    /* Apple-first: looks like Base44 on your Mac */
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
       system-ui, "Segoe UI", Roboto, Arial, sans-serif;
     text-rendering: optimizeLegibility;
@@ -13,12 +12,10 @@
     color: #1c1917;
   }
 
-  body {
-    font-weight: 300; /* baseline “thin feel” */
-  }
+  body { font-weight: 300; }
 
   h1, h2, h3 {
-    font-weight: 300; /* readable but not chunky */
+    font-weight: 300;
     letter-spacing: -0.02em;
     color: #1c1917;
   }
@@ -36,7 +33,7 @@
   }
 }
 
-/* Logo: use font-weight (predictable), not wght axis hacks */
+/* Logo */
 .logo-branding {
   font-weight: 700;
   letter-spacing: 0.3em;
@@ -46,13 +43,14 @@
   color: #1c1917;
 }
 
+/* Invite page card stays as-is */
 .glass-card {
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   border-radius: 24px;
   border: 1px solid rgba(231, 229, 228, 0.4);
 }
-/* Add/Confirm this is at the bottom of globals.css */
+
 .logo-branding {
   font-variation-settings: 'wght' 700, 'opsz' 14 !important;
   letter-spacing: 0.3em !important;
@@ -60,3 +58,169 @@
   font-size: 16px !important;
   color: #1c1917 !important;
 }
+
+/* =========================
+   ONBOARDING THEME (SCOPED)
+   ========================= */
+.onboarding-theme {
+  --bg-main: #F7F3F0;
+
+  --pill-bg: #F9F8F6;
+  --pill-outline: #FFFFFF;
+  --pill-selected: #D9D2C9;
+  --pill-selected-outline: #EBE7E0;
+
+  --text-primary: #2D2926;
+  --text-secondary: #6B625D;
+
+  --btn-default: #FDFDFD;
+  --btn-active: #D9D2C9;
+
+  /* darker grey (not black, not green) */
+  --accent-progress: #44403c;
+}
+
+.onboarding-theme {
+  background: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+}
+
+/* =========================
+   REMOVE WHITE CARDS (ONBOARDING ONLY)
+   ========================= */
+
+/* Life-stage + norms use .glass-card; kill it only inside onboarding */
+.onboarding-theme .glass-card {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Other pages use inline "CARD" blocks; remove those too */
+.onboarding-theme div[style*="border-radius: 18px"][style*="border: 1px solid"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* =========================
+   CONTINUE BUTTON (CONSISTENT ENABLE/DISABLE)
+   ========================= */
+
+.onboarding-theme button[style*="height: 48px"][style*="border-radius: 999"] {
+  background: var(--pill-selected) !important;
+  background-color: var(--pill-selected) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--pill-selected-outline) !important;
+  cursor: pointer !important;
+}
+
+.onboarding-theme button[disabled][style*="height: 48px"][style*="border-radius: 999"] {
+  background: rgba(182, 176, 170, 0.55) !important;
+  background-color: rgba(182, 176, 170, 0.55) !important;
+  color: rgba(45, 41, 38, 0.55) !important;
+  border: 1px solid rgba(235, 231, 224, 0.9) !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* =========================
+   ADD BUTTONS (STOP BEING BLACK)
+   Many of yours are: height 48 + radius 12 + bg #22262A
+   ========================= */
+
+.onboarding-theme button[style*="border-radius: 12px"] {
+  background: var(--btn-default) !important;
+  background-color: var(--btn-default) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid rgba(235, 231, 224, 0.95) !important;
+}
+
+.onboarding-theme button[disabled][style*="border-radius: 12px"] {
+  background: rgba(241, 237, 232, 0.85) !important;
+  background-color: rgba(241, 237, 232, 0.85) !important;
+  color: rgba(45, 41, 38, 0.45) !important;
+  border: 1px solid rgba(235, 231, 224, 0.9) !important;
+}
+
+/* =========================
+   PILLS (SELECTED SHOULD NOT BE BLACK)
+   AND ensure they remain clickable.
+   ========================= */
+
+/* Base pill styling (exclude big Continue CTA) */
+.onboarding-theme button[style*="border-radius: 999"]:not([style*="height: 48px"][style*="border-radius: 999"]) {
+  background: var(--pill-bg) !important;
+  background-color: var(--pill-bg) !important;
+  border-color: var(--pill-outline) !important;
+  color: var(--text-primary) !important;
+  pointer-events: auto !important;
+}
+
+/* Selected pills: inline #22262A becomes rgb(34, 38, 42) */
+.onboarding-theme button[style*="border-radius: 999"][style*="rgb(34, 38, 42)"]:not([style*="height: 48px"][style*="border-radius: 999"]) {
+  background: var(--pill-selected) !important;
+  background-color: var(--pill-selected) !important;
+  border-color: var(--pill-selected-outline) !important;
+  color: var(--text-primary) !important;
+}
+
+/* =========================
+   YES/NO PAGES: SMALLER BUTTONS
+   (keep your earlier behavior)
+   ========================= */
+.onboarding-theme div[style*="display: flex"][style*="gap: 10px"] > button[style*="width: 100%"][style*="height: 48px"][style*="border-radius: 999"] {
+  width: 160px !important;
+  flex: 1 1 0px !important;
+}
+
+/* Inputs inside onboarding */
+.onboarding-theme input,
+.onboarding-theme textarea,
+.onboarding-theme select {
+  border-color: rgba(235, 231, 224, 0.95) !important;
+  background: rgba(253, 253, 253, 0.85) !important;
+  color: var(--text-primary) !important;
+}
+/* =========================================
+   Onboarding layout polish (scoped)
+   Fix oversized buttons + awkward spacing
+   ========================================= */
+
+/* 1) Contacts page-style stacked CTAs:
+   Any full-width pill button becomes a centered, capped width button */
+   .onboarding-theme button[style*="width: 100%"][style*="height: 48px"][style*="border-radius: 999"] {
+    max-width: 520px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* 2) Tighten the vertical rhythm around stacked CTAs:
+     Many pages use a column wrapper with gap via margins; this reduces “air” */
+  .onboarding-theme button[style*="width: 100%"][style*="height: 48px"][style*="border-radius: 999"] + * {
+    margin-top: 14px !important;
+  }
+  
+  /* 3) Provider Yes/No row:
+     Center the row and make the buttons smaller + cleaner */
+  .onboarding-theme div[style*="display: flex"][style*="gap: 10px"] {
+    justify-content: center !important;
+  }
+  
+  .onboarding-theme div[style*="display: flex"][style*="gap: 10px"]
+    > button[style*="width: 100%"][style*="height: 48px"][style*="border-radius: 999"] {
+    flex: 0 0 auto !important;
+    width: 240px !important;
+    max-width: 240px !important;
+  }
+  
+  /* 4) Slightly reduce pill button padding so they look less “thick” */
+  .onboarding-theme button[style*="height: 48px"][style*="border-radius: 999"] {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    font-size: 14px !important;
+  }
+  

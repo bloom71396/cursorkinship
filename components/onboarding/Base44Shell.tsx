@@ -28,7 +28,7 @@ export default function Base44Shell({
     <div
       style={{
         minHeight: '100vh',
-        background: '#f6f4f2',
+        background: '#F6F5F2',
         padding: '24px 16px 48px',
         boxSizing: 'border-box',
       }}
@@ -50,7 +50,7 @@ export default function Base44Shell({
             padding: 0,
             marginBottom: 12,
             fontSize: 14,
-            color: '#6B6F73',
+            color: '#6B625D',
             cursor: 'pointer',
           }}
         >
@@ -72,7 +72,7 @@ export default function Base44Shell({
             style={{
               height: '100%',
               width: `${pct}%`,
-              background: '#22262A', // fill
+              background: '#8A857F', // fill
               borderRadius: 999,
               transition: 'width 200ms ease',
             }}
@@ -89,9 +89,9 @@ export default function Base44Shell({
           <div
             style={{
               fontSize: 28,
-              fontWeight: 700,
+              fontWeight: 500,
               letterSpacing: -0.2,
-              color: '#22262A',
+              color: '#2D2926',
             }}
           >
             {title}
@@ -101,8 +101,8 @@ export default function Base44Shell({
             <div
               style={{
                 marginTop: 8,
-                fontSize: 15,
-                color: '#6B6F73',
+                fontSize: 18,
+                color: '#6B625D',
                 lineHeight: 1.35,
                 maxWidth: 520,
                 marginLeft: 'auto',

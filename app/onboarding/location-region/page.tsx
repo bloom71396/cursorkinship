@@ -184,8 +184,8 @@ export default function Page() {
     width: '100%',
     height: 48,
     borderRadius: 14,
-    border: '1px solid #E6DFD7',
-    background: '#fff',
+    border: '1px solid #EBE7E0',
+    background: '#FDFDFD',
     padding: '0 14px',
     fontSize: 15,
     outline: 'none',
@@ -195,7 +195,7 @@ export default function Page() {
   const labelStyle: React.CSSProperties = {
     fontSize: 14,
     fontWeight: 600,
-    color: '#22262A',
+    color: '#2D2926',
     marginBottom: 8,
   }
 
@@ -205,10 +205,10 @@ export default function Page() {
     right: 0,
     top: 52,
     zIndex: 50,
-    background: '#fff',
-    border: '1px solid #E6DFD7',
+    background: '#FDFDFD',
+    border: '1px solid #EBE7E0',
     borderRadius: 14,
-    boxShadow: '0 12px 30px rgba(34,38,42,0.12)',
+    boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
     overflow: 'hidden',
   }
 
@@ -216,8 +216,8 @@ export default function Page() {
     padding: '10px 12px',
     fontSize: 14,
     cursor: 'pointer',
-    color: '#22262A',
-    background: '#fff',
+    color: '#2D2926',
+    background: '#FDFDFD',
   }
 
   return (
@@ -225,7 +225,7 @@ export default function Page() {
       step={step}
       totalSteps={totalSteps}
       title="Where are you based?"
-      subtitle="This helps personalize recommendations and match you with nearby people."
+      subtitle="So recommendations and people are local, relevant and realistic."
     >
       <div
         style={{
@@ -234,8 +234,8 @@ export default function Page() {
           margin: '0 auto',
           padding: 24,
           borderRadius: 18,
-          border: '1px solid #E6DFD7',
-          background: '#fff',
+          border: '1px solid transparent',
+          background: 'transparent',
           boxSizing: 'border-box',
         }}
       >
@@ -289,14 +289,14 @@ export default function Page() {
             )}
           </div>
 
-          <div style={{ marginTop: 8, fontSize: 12.5, color: '#6B6F73' }}>
+          <div style={{ marginTop: 8, fontSize: 12.5, color: 'rgba(0,0,0,0.55)' }}>
             Pick a suggestion, or type anything and press Enter.
           </div>
 
           {/* Neighborhood */}
           <div style={{ marginTop: 16 }}>
             <div style={labelStyle}>
-              Neighborhood <span style={{ fontWeight: 400, color: '#6B6F73' }}>(optional)</span>
+              Neighborhood <span style={{ fontWeight: 400, color: 'rgba(0,0,0,0.55)' }}>(optional)</span>
             </div>
 
             <div ref={neighborhoodBoxRef} style={{ position: 'relative' }}>
@@ -324,11 +324,8 @@ export default function Page() {
                 disabled={!clean(cityInput) && !clean(citySelected)}
                 style={{
                   ...inputStyle,
-                  background: clean(cityInput) || clean(citySelected) ? '#fff' : 'rgba(0,0,0,0.03)',
-                  border:
-                    clean(cityInput) || clean(citySelected)
-                      ? '1px solid #E6DFD7'
-                      : '1px solid #B6B0AA',
+                  background: clean(cityInput) || clean(citySelected) ? '#FDFDFD' : '#F9F8F6',
+                  border: '1px solid #EBE7E0',
                 }}
                 autoComplete="address-level3"
               />
@@ -353,7 +350,7 @@ export default function Page() {
             </div>
 
             {clean(cityInput) && neighborhoodsForCity.length === 0 && (
-              <div style={{ marginTop: 8, fontSize: 12.5, color: '#6B6F73' }}>
+              <div style={{ marginTop: 8, fontSize: 12.5, color: 'rgba(0,0,0,0.55)' }}>
                 No neighborhood list for this city yet. Type anything and press Enter.
               </div>
             )}
@@ -371,13 +368,28 @@ export default function Page() {
               width: '100%',
               maxWidth: 600,
               borderRadius: 999,
-              background: canContinue ? '#22262A' : '#B6B0AA',
-              color: '#fff',
-              border: 'none',
+              background: canContinue ? '#FDFDFD' : '#D9D2C9',
+              color: '#2D2926',
+              border: '1px solid #EBE7E0',
               fontSize: 15,
               fontWeight: 500,
               cursor: canContinue ? 'pointer' : 'default',
               transition: 'background 120ms ease',
+            }}
+            onMouseDown={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#D9D2C9'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
             }}
           >
             Continue

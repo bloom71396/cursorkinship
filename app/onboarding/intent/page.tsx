@@ -8,73 +8,23 @@ import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 
 const INTENT_OPTIONS = [
-  'Find trusted provider recommendations',
-  'Ask for advice from people in similar life stages',
-  'Share my go-to recommendations',
-  'Discover local gems (food, wellness, services)',
-  'Get help with a specific situation (move, breakup, new job, etc.)',
-  'Meet people nearby who “get it”',
-  'Build a circle I actually trust',
+  'Find provider recommendations I can actually trust',
+  'I don’t trust online reviews or random internet advice',
+  'I’ve had a bad experience and want to avoid repeating it',
+  'Get advice from people who are genuinely like me',
+  'Get advice from people who share my background or lived experience',
+  'Hear recommendations that don’t require overexplaining my situation',
+  'Connect with others in a similar life stage',
+  'Find support around something personal or sensitive',
+  'I’m tired of trial-and-error and guessing',
+  'Get a second opinion that actually feels relevant',
+  'Build a small, private community I trust',
+  'Share experiences and recommendations that helped me',
   'Just browsing for now',
 ]
 
-const CARD: React.CSSProperties = {
-  width: '100%',
-  maxWidth: 760,
-  margin: '0 auto',
-  padding: 24,
-  borderRadius: 18,
-  border: '1px solid #E6DFD7',
-  background: '#fff',
-  boxSizing: 'border-box',
-}
-
-const pillsWrap: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-  gap: 8,
-}
-
-function pillStyle(isOn: boolean): React.CSSProperties {
-  return {
-    padding: '6px 12px',
-    borderRadius: 999,
-    border: isOn ? '1px solid #22262A' : '1px solid #C9C1B8',
-    background: isOn ? '#22262A' : '#fff',
-    color: isOn ? '#fff' : '#22262A',
-    fontSize: 13,
-    lineHeight: 1.1,
-    cursor: 'pointer',
-    userSelect: 'none',
-    whiteSpace: 'nowrap',
-  }
-}
-
-const inputStyle: React.CSSProperties = {
-  height: 44,
-  width: '100%',
-  borderRadius: 12,
-  border: '1px solid #C9C1B8',
-  padding: '0 14px',
-  fontSize: 14,
-  outline: 'none',
-  boxSizing: 'border-box',
-}
-
-function addBtnStyle(enabled: boolean): React.CSSProperties {
-  return {
-    height: 44,
-    padding: '0 14px',
-    borderRadius: 12,
-    border: '1px solid #C9C1B8',
-    background: enabled ? '#3A3F45' : '#F1EDE8',
-    color: enabled ? '#FFFFFF' : '#8F887F',
-    fontSize: 14,
-    cursor: enabled ? 'pointer' : 'default',
-    transition: 'background 120ms ease, color 120ms ease',
-    whiteSpace: 'nowrap',
-  }
+function normalize(s: string) {
+  return s.trim().replace(/\s+/g, ' ')
 }
 
 export default function Page() {
@@ -89,20 +39,24 @@ export default function Page() {
   const [custom, setCustom] = useState('')
 
   const canContinue = selected.length > 0
-  const canAdd = custom.trim().length > 0
+  const addEnabled = normalize(custom).length > 0
 
   function toggle(label: string) {
-    const normalized = label.trim().replace(/\s+/g, ' ')
-    if (!normalized) return
-    setSelected((prev) =>
-      prev.includes(normalized) ? prev.filter((x) => x !== normalized) : [...prev, normalized]
-    )
+    setSelected((prev) => (prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]))
+  }
+
+  function remove(label: string) {
+    setSelected((prev) => prev.filter((x) => x !== label))
   }
 
   function addCustom() {
-    const normalized = custom.trim().replace(/\s+/g, ' ')
-    if (!normalized) return
-    if (!selected.includes(normalized)) setSelected((prev) => [...prev, normalized])
+    const v = normalize(custom)
+    if (!v) return
+
+    const lower = v.toLowerCase()
+    const exists = selected.some((x) => x.toLowerCase() === lower)
+
+    if (!exists) setSelected((prev) => [...prev, v])
     setCustom('')
   }
 
@@ -114,7 +68,7 @@ export default function Page() {
       profile_data: { intent: selected },
     })
 
-    if (!res?.ok) return
+    if (!res.ok) return
     router.push(nextPath)
   }
 
@@ -123,65 +77,144 @@ export default function Page() {
       step={step}
       totalSteps={totalSteps}
       title="What brings you to Kinship?"
-      subtitle="Pick all that apply. You can always change this later."
+      subtitle="Pick all that apply."
     >
-      <div style={CARD}>
-        <div style={pillsWrap}>
-          {INTENT_OPTIONS.map((label) => {
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 760,
+          margin: '0 auto',
+          padding: 24,
+          borderRadius: 18,
+          border: '1px solid transparent',
+          background: 'transparent',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 8,
+          }}
+        >
+          {[...INTENT_OPTIONS, ...selected.filter((x) => !INTENT_OPTIONS.includes(x))].map((label) => {
             const isOn = selected.includes(label)
+            const isCustom = !INTENT_OPTIONS.includes(label)
             return (
               <button
                 key={label}
                 type="button"
                 onClick={() => toggle(label)}
-                style={pillStyle(isOn)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '6px 12px',
+                  borderRadius: 999,
+                  border: isOn ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+                  background: isOn ? '#D9D2C9' : '#F9F8F6',
+                  color: '#2D2926',
+                  fontSize: 13,
+                  lineHeight: 1.1,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
               >
-                {label}
+                <span>{label}</span>
+                {isCustom ? (
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      remove(label)
+                    }}
+                    role="button"
+                    aria-label={`Remove ${label}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9999,
+                      backgroundColor: 'rgba(45, 41, 38, 0.1)',
+                      color: '#2D2926',
+                      fontSize: 12,
+                      lineHeight: 1,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ×
+                  </span>
+                ) : null}
               </button>
             )
           })}
-
-          {selected
-            .filter((x) => !INTENT_OPTIONS.includes(x))
-            .map((label) => {
-              const isOn = selected.includes(label)
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => toggle(label)}
-                  style={pillStyle(isOn)}
-                >
-                  {label}
-                </button>
-              )
-            })}
         </div>
 
-        <div style={{ marginTop: 18, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: 600 }}>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                value={custom}
-                onChange={(e) => setCustom(e.target.value)}
-                placeholder="Add your own…"
-                style={inputStyle}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addCustom()
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={addCustom}
-                disabled={!canAdd}
-                style={addBtnStyle(canAdd)}
-              >
-                Add
-              </button>
-            </div>
+        {/* Add your own */}
+        <div style={{ marginTop: 18, maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  if (addEnabled) addCustom()
+                }
+              }}
+              placeholder="Add your own…"
+              style={{
+                height: 44,
+                width: '100%',
+                borderRadius: 12,
+                border: '1px solid #EBE7E0',
+                padding: '0 14px',
+                fontSize: 14,
+                outline: 'none',
+                boxSizing: 'border-box',
+                background: '#FDFDFD',
+              }}
+            />
+            <button
+              type="button"
+              onClick={addCustom}
+              disabled={!addEnabled}
+              style={{
+                height: 44,
+                padding: '0 14px',
+                borderRadius: 12,
+                border: '1px solid #EBE7E0',
+                background: addEnabled ? '#FDFDFD' : '#D9D2C9',
+                color: '#2D2926',
+                fontSize: 14,
+                cursor: addEnabled ? 'pointer' : 'default',
+                transition: 'background 120ms ease',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseDown={(e) => {
+                if (addEnabled) {
+                  e.currentTarget.style.backgroundColor = '#D9D2C9'
+                }
+              }}
+              onMouseUp={(e) => {
+                if (addEnabled) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (addEnabled) {
+                  e.currentTarget.style.backgroundColor = '#FDFDFD'
+                }
+              }}
+            >
+              Add
+            </button>
+          </div>
+
+          <div style={{ marginTop: 8, fontSize: 12, color: '#6B6B6B' }}>
           </div>
         </div>
 
@@ -195,13 +228,28 @@ export default function Page() {
               width: '100%',
               maxWidth: 600,
               borderRadius: 999,
-              background: canContinue ? '#22262A' : '#B6B0AA',
-              color: '#fff',
-              border: 'none',
+              background: canContinue ? '#FDFDFD' : '#D9D2C9',
+              color: '#2D2926',
+              border: '1px solid #EBE7E0',
               fontSize: 15,
               fontWeight: 500,
               cursor: canContinue ? 'pointer' : 'default',
               transition: 'background 120ms ease',
+            }}
+            onMouseDown={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#D9D2C9'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canContinue) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
             }}
           >
             Continue

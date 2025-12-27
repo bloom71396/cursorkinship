@@ -7,7 +7,7 @@ import { createBrowserClient } from "@supabase/ssr"
 import Base44Shell from "@/components/onboarding/Base44Shell"
 import { getNextStep, isValidOnboardingPath, ONBOARDING_STEPS } from "@/lib/onboarding"
 
-const CARD = "rounded-3xl border border-stone-200 bg-white/80 p-6"
+const CARD = "rounded-3xl border-transparent bg-transparent p-6"
 
 export default function Page() {
   const router = useRouter()
@@ -127,24 +127,30 @@ export default function Page() {
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className="flex-1 rounded-xl border px-3 py-2 text-sm"
-            style={
-              mode === "signup"
-                ? { borderColor: "#22262A", backgroundColor: "#22262A", color: "white" }
-                : { borderColor: "#B6B0AA", backgroundColor: "white", color: "#22262A" }
-            }
+            style={{
+              flex: 1,
+              borderRadius: '12px',
+              border: mode === "signup" ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+              background: mode === "signup" ? '#D9D2C9' : '#F9F8F6',
+              color: '#2D2926',
+              padding: '8px 12px',
+              fontSize: '14px',
+            }}
           >
             Sign up
           </button>
           <button
             type="button"
             onClick={() => setMode("login")}
-            className="flex-1 rounded-xl border px-3 py-2 text-sm"
-            style={
-              mode === "login"
-                ? { borderColor: "#22262A", backgroundColor: "#22262A", color: "white" }
-                : { borderColor: "#B6B0AA", backgroundColor: "white", color: "#22262A" }
-            }
+            style={{
+              flex: 1,
+              borderRadius: '12px',
+              border: mode === "login" ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
+              background: mode === "login" ? '#D9D2C9' : '#F9F8F6',
+              color: '#2D2926',
+              padding: '8px 12px',
+              fontSize: '14px',
+            }}
           >
             Log in
           </button>
@@ -156,7 +162,15 @@ export default function Page() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             autoComplete="email"
-            className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-300"
+            style={{
+              width: '100%',
+              borderRadius: '12px',
+              border: '1px solid #EBE7E0',
+              background: '#FDFDFD',
+              padding: '8px 12px',
+              fontSize: '14px',
+              outline: 'none',
+            }}
           />
           <input
             value={password}
@@ -164,17 +178,47 @@ export default function Page() {
             placeholder="Password"
             type="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-300"
+            style={{
+              width: '100%',
+              borderRadius: '12px',
+              border: '1px solid #EBE7E0',
+              background: '#FDFDFD',
+              padding: '8px 12px',
+              fontSize: '14px',
+              outline: 'none',
+            }}
           />
 
           <button
             type="button"
             disabled={loading || !email || !password}
             onClick={onSubmit}
-            className="w-full rounded-xl px-4 py-2 text-sm font-medium transition"
             style={{
-              backgroundColor: loading || !email || !password ? "#B6B0AA" : "#22262A",
-              color: loading || !email || !password ? "#A8A29E" : "white",
+              width: '100%',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              transition: 'background 120ms ease',
+              background: loading || !email || !password ? '#D9D2C9' : '#FDFDFD',
+              color: '#2D2926',
+              border: '1px solid #EBE7E0',
+              cursor: loading || !email || !password ? 'not-allowed' : 'pointer',
+            }}
+            onMouseDown={(e) => {
+              if (!loading && email && password) {
+                e.currentTarget.style.backgroundColor = '#D9D2C9'
+              }
+            }}
+            onMouseUp={(e) => {
+              if (!loading && email && password) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading && email && password) {
+                e.currentTarget.style.backgroundColor = '#FDFDFD'
+              }
             }}
           >
             {loading ? "Working…" : mode === "signup" ? "Create account" : "Log in"}

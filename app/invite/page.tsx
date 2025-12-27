@@ -80,7 +80,7 @@ export default function InvitePage() {
                 height: '48px',
                 width: '100%',
                 backgroundColor: 'white',
-                border: '1px solid #B6B0AA',
+                border: '1px solid #E6DFD7',
                 borderRadius: '12px',
                 padding: '0 16px',
                 fontSize: '14px',
