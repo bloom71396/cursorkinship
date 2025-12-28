@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
 
 export default function InvitePage() {
   const router = useRouter()
@@ -37,9 +38,8 @@ export default function InvitePage() {
         return
       }
 
-      // Successful redeem should set invite_ok cookie server-side
       router.push(data?.redirect || next)
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Try again.')
       setLoading(false)
     }
@@ -47,7 +47,15 @@ export default function InvitePage() {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-6 min-h-screen">
-      <div style={{ width: '100%', maxWidth: '341px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '341px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         <span className="logo-branding" style={{ marginBottom: '64px' }}>
           KINSHIP
         </span>
@@ -62,7 +70,14 @@ export default function InvitePage() {
 
         <div
           className="glass-card"
-          style={{ width: '100%', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}
+          style={{
+            width: '100%',
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            boxSizing: 'border-box',
+          }}
         >
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <input
@@ -83,36 +98,27 @@ export default function InvitePage() {
                 border: '1px solid #E6DFD7',
                 borderRadius: '12px',
                 padding: '0 16px',
-                fontSize: '14px',
+                fontSize: '16px',
                 color: '#44403c',
                 boxSizing: 'border-box',
               }}
             />
 
-            <button
+            <InviteStyleButton
               type="submit"
-              disabled={!canSubmit}
+              canSubmit={canSubmit}
+              loading={loading}
               style={{
                 height: '48px',
-                width: '100%',
-                backgroundColor: canSubmit ? '#22262A' : '#B6B0AA',
-                color: 'white',
-                borderRadius: '9999px',
-                border: 'none',
-                fontSize: '14px',
-                cursor: canSubmit ? 'pointer' : 'not-allowed',
-                fontWeight: '400',
-                opacity: loading ? 0.85 : 1,
+                fontSize: '16px',
               }}
             >
               {loading ? 'Checking…' : 'Continue'}
-            </button>
+            </InviteStyleButton>
           </form>
 
           {error ? (
-            <p style={{ textAlign: 'center', fontSize: '13px', color: '#b91c1c', marginTop: '4px' }}>
-              {error}
-            </p>
+            <p style={{ textAlign: 'center', fontSize: '13px', color: '#b91c1c', marginTop: '4px' }}>{error}</p>
           ) : null}
 
           <p style={{ textAlign: 'center', fontSize: '13px', color: '#78716c', marginTop: '8px' }}>
@@ -120,7 +126,16 @@ export default function InvitePage() {
           </p>
         </div>
 
-        <div style={{ marginTop: '100px', fontSize: '11px', color: '#B6B0AA', textAlign: 'center', maxWidth: '280px', lineHeight: '1.6' }}>
+        <div
+          style={{
+            marginTop: '100px',
+            fontSize: '11px',
+            color: '#B6B0AA',
+            textAlign: 'center',
+            maxWidth: '280px',
+            lineHeight: '1.6',
+          }}
+        >
           By continuing, you agree to our <span style={{ textDecoration: 'underline' }}>Terms</span> &{' '}
           <span style={{ textDecoration: 'underline' }}>Privacy Policy</span>
         </div>

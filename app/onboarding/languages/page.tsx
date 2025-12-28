@@ -3,6 +3,8 @@
 import React, { useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
+import Pill from '@/components/ui/Pill'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 
@@ -45,6 +47,20 @@ function normalize(s: string) {
   return s.trim().replace(/\s+/g, ' ')
 }
 
+function dedupePreserveOrder(list: string[]) {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const raw of list) {
+    const v = normalize(raw)
+    const k = v.toLowerCase()
+    if (!v) continue
+    if (seen.has(k)) continue
+    seen.add(k)
+    out.push(v)
+  }
+  return out
+}
+
 export default function Page() {
   const router = useRouter()
   const pathname = usePathname()
@@ -60,9 +76,11 @@ export default function Page() {
   const addEnabled = normalize(custom).length > 0
 
   function toggle(label: string) {
-    setSelected((prev) =>
-      prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]
-    )
+    setSelected((prev) => (prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]))
+  }
+
+  function remove(label: string) {
+    setSelected((prev) => prev.filter((x) => x !== label))
   }
 
   function addCustom() {
@@ -71,7 +89,6 @@ export default function Page() {
 
     const lower = v.toLowerCase()
     const exists = selected.some((x) => x.toLowerCase() === lower)
-
     if (!exists) setSelected((prev) => [...prev, v])
     setCustom('')
   }
@@ -81,92 +98,39 @@ export default function Page() {
 
     const res = await saveProgress({
       onboarding_step_path: pathname,
-      profile_data: { languages: selected },
+      profile_data: { languages: dedupePreserveOrder(selected) },
     })
 
     if (res?.ok) router.push(nextPath)
   }
 
+  const pills = dedupePreserveOrder([...LANGUAGES, ...selected.filter((x) => !LANGUAGES.includes(x))])
+
   return (
-    <Base44Shell
-      step={step}
-      totalSteps={totalSteps}
-      title="Languages"
-      subtitle="So conversations feel natural, not translated."
-    >
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-        >
-          {[...LANGUAGES, ...selected.filter((x) => !LANGUAGES.includes(x))].map((label) => {
+    <Base44Shell step={step} totalSteps={totalSteps} title="Languages" subtitle="So conversations feel natural, not translated.">
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
+        <div style={{ marginBottom: 12, fontSize: 13, color: '#6B625D' }}>Select all that apply</div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
+          {pills.map((label) => {
             const isOn = selected.includes(label)
             const isCustom = !LANGUAGES.includes(label)
+
             return (
-              <button
+              <Pill
                 key={label}
-                type="button"
-                onClick={() => toggle(label)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '6px 12px',
-                  borderRadius: 999,
-                  border: isOn ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
-                  background: isOn ? '#D9D2C9' : '#F9F8F6',
-                  color: '#2D2926',
-                  fontSize: 13,
-                  lineHeight: 1.1,
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
-              >
-                <span>{label}</span>
-                {isCustom ? (
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelected((prev) => prev.filter((x) => x !== label))
-                    }}
-                    role="button"
-                    aria-label={`Remove ${label}`}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 18,
-                      height: 18,
-                      borderRadius: 9999,
-                      backgroundColor: 'rgba(45, 41, 38, 0.1)',
-                      color: '#2D2926',
-                      fontSize: 12,
-                      lineHeight: 1,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    ×
-                  </span>
-                ) : null}
-              </button>
+                label={label}
+                selected={isOn}
+                onToggle={() => toggle(label)}
+                onRemove={isCustom ? () => remove(label) : undefined}
+              />
             )
           })}
         </div>
 
         {/* Add your own */}
-        <div
-          style={{
-            marginTop: 18,
-            maxWidth: 600,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ marginTop: 18, maxWidth: 600, marginInline: 'auto', textAlign: 'left' }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <input
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
@@ -183,89 +147,30 @@ export default function Page() {
                 borderRadius: 12,
                 border: '1px solid #EBE7E0',
                 padding: '0 14px',
-                fontSize: 14,
+                fontSize: 16,
                 outline: 'none',
                 boxSizing: 'border-box',
                 background: '#FDFDFD',
               }}
             />
 
-            <button
-              type="button"
+            <InviteStyleButton
+              canSubmit={addEnabled}
               onClick={addCustom}
-              disabled={!addEnabled}
-              style={{
-                height: 44,
-                padding: '0 14px',
-                borderRadius: 12,
-                border: '1px solid #EBE7E0',
-                background: addEnabled ? '#FDFDFD' : '#D9D2C9',
-                color: '#2D2926',
-                fontSize: 14,
-                cursor: addEnabled ? 'pointer' : 'default',
-                transition: 'background 120ms ease',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseDown={(e) => {
-                if (addEnabled) {
-                  e.currentTarget.style.backgroundColor = '#D9D2C9'
-                }
-              }}
-              onMouseUp={(e) => {
-                if (addEnabled) {
-                  e.currentTarget.style.backgroundColor = '#FDFDFD'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (addEnabled) {
-                  e.currentTarget.style.backgroundColor = '#FDFDFD'
-                }
-              }}
+              style={{ height: 44, width: 'auto', padding: '0 14px', borderRadius: 12, fontSize: 16, whiteSpace: 'nowrap' }}
             >
               Add
-            </button>
-          </div>
-
-          <div style={{ marginTop: 8, fontSize: 12, color: '#6B6B6B' }}>
+            </InviteStyleButton>
           </div>
         </div>
 
+        {/* Continue */}
         <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
-          <button
-            type="button"
-            disabled={!canContinue}
-            onClick={onContinue}
-            style={{
-              height: 48,
-              width: '100%',
-              maxWidth: 600,
-              borderRadius: 999,
-              background: canContinue ? '#FDFDFD' : '#D9D2C9',
-              color: '#2D2926',
-              border: '1px solid #EBE7E0',
-              fontSize: 15,
-              fontWeight: 500,
-              cursor: canContinue ? 'pointer' : 'default',
-              transition: 'background 120ms ease',
-            }}
-            onMouseDown={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#D9D2C9'
-              }
-            }}
-            onMouseUp={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#FDFDFD'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#FDFDFD'
-              }
-            }}
-          >
-            Continue
-          </button>
+          <div style={{ width: '100%', maxWidth: 600 }}>
+            <InviteStyleButton canSubmit={canContinue} onClick={onContinue}>
+              Continue
+            </InviteStyleButton>
+          </div>
         </div>
       </div>
     </Base44Shell>

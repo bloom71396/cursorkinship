@@ -40,6 +40,27 @@ export default function Base44Shell({
           margin: '0 auto',
         }}
       >
+        {/* Kinship logo */}
+        <div
+          style={{
+            textAlign: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{
+              fontSize:27,
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              color: '#2D2926',
+              textTransform: 'uppercase',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            }}
+          >
+            KINSHIP
+          </div>
+        </div>
+
         {/* Back button */}
         <button
           type="button"
@@ -84,6 +105,7 @@ export default function Base44Shell({
           style={{
             textAlign: 'center',
             padding: '0 8px 20px',
+            marginBottom: 24,
           }}
         >
           <div

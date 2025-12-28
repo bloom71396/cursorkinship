@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
+import Pill from '@/components/ui/Pill'
 
 const AGE_RANGES = [
   '18–20',
@@ -73,77 +75,30 @@ export default function Page() {
           boxSizing: 'border-box',
         }}
       >
-        {/* Pills */}
+        {/* Pills (now uses shared <Pill /> so the outline matches life-stage) */}
         <div
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: 8,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: 10,
+            justifyItems: 'center',
           }}
         >
-          {AGE_RANGES.map((label) => {
-            const isSelected = selected === label
-            return (
-              <button
-                key={label}
-                type="button"
-                onClick={() => setSelected(label)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 999,
-                  border: isSelected ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
-                  background: isSelected ? '#D9D2C9' : '#F9F8F6',
-                  color: '#2D2926',
-                  fontSize: 13,
-                  lineHeight: 1,
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
-              >
-                {label}
-              </button>
-            )
-          })}
+          {AGE_RANGES.map((label) => (
+            <Pill
+              key={label}
+              label={label}
+              selected={selected === label}
+              onToggle={() => setSelected(label)}
+            />
+          ))}
         </div>
 
-        {/* Continue button – EXACT life-stage behavior */}
-        <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
-          <button
-            type="button"
-            onClick={onContinue}
-            disabled={!canContinue}
-            style={{
-              height: 48,
-              width: '100%',
-              maxWidth: 600,
-              borderRadius: 999,
-              background: canContinue ? '#FDFDFD' : '#D9D2C9',
-              color: '#2D2926',
-              border: '1px solid #EBE7E0',
-              fontSize: 15,
-              fontWeight: 500,
-              cursor: canContinue ? 'pointer' : 'default',
-              transition: 'background 120ms ease',
-            }}
-            onMouseDown={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#D9D2C9'
-              }
-            }}
-            onMouseUp={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#FDFDFD'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#FDFDFD'
-              }
-            }}
-          >
+        {/* Continue (uses shared button styling) */}
+        <div style={{ marginTop: 24 }}>
+          <InviteStyleButton canSubmit={canContinue} onClick={onContinue}>
             Continue
-          </button>
+          </InviteStyleButton>
         </div>
       </div>
     </Base44Shell>

@@ -3,252 +3,146 @@
 import React, { useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
+import Pill from '@/components/ui/Pill'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 
-const OPTIONS = [
-  'Woman',
-  'Man',
-  'Non-binary',
-  'Transgender',
-  'Genderqueer',
-  'Gender non-conforming',
-  'Agender',
-  'Intersex',
+type Section = {
+  key: string
+  title: string
+  options: string[]
+}
 
-  'Straight / heterosexual',
-  'Gay',
-  'Lesbian',
-  'Bisexual',
-  'Pansexual',
-  'Asexual',
-  'Queer',
-
-  'Person of color',
-  'Black / African diaspora',
-  'Latina / Latino / Latine',
-  'Asian',
-  'South Asian',
-  'Middle Eastern / North African',
-  'Indigenous',
-  'Multiracial',
-  'Immigrant',
-  'Child of immigrants',
-  'First-generation',
-
-  'Christian',
-  'Catholic',
-  'Jewish',
-  'Muslim',
-  'Hindu',
-  'Buddhist',
-  'Sikh',
-  'Spiritual but not religious',
-  'Agnostic',
-  'Atheist',
-  'Formerly religious',
-
-  'Lost a parent',
-  'Lost a sibling',
-  'Lost a partner',
-  'Estranged from family',
-  'Only child',
-  'Oldest sibling',
-  'Youngest sibling',
-  'Divorced',
-  'Single parent',
-  'Childfree by choice',
-  'In recovery',
-  'Caregiver to a parent',
-  'Financially supporting family',
-
-  'Neurodivergent',
-  'Disabled',
-  'Living with chronic illness',
+const SECTIONS: Section[] = [
+  {
+    key: 'gender_identity',
+    title: 'GENDER IDENTITY',
+    options: ['Woman', 'Man', 'Non-binary', 'Transgender', 'Genderqueer', 'Gender non-conforming', 'Agender', 'Intersex'],
+  },
+  {
+    key: 'sexual_orientation',
+    title: 'SEXUAL ORIENTATION',
+    options: ['Straight / heterosexual', 'Gay', 'Lesbian', 'Bisexual', 'Pansexual', 'Asexual', 'Queer'],
+  },
+  {
+    key: 'race_ethnicity',
+    title: 'RACE + ETHNICITY',
+    options: [
+      'Person of color',
+      'Black / African diaspora',
+      'Latina / Latino / Latine',
+      'Asian',
+      'South Asian',
+      'Middle Eastern / North African',
+      'Indigenous',
+      'Multiracial',
+    ],
+  },
+  {
+    key: 'background',
+    title: 'BACKGROUND',
+    options: [
+      'Immigrant / first-gen',
+      'Child of immigrants',
+      'First-generation college',
+      'Faith-based upbringing',
+      'Formerly religious',
+      'Military family',
+      'Rural background',
+      'Caregiver background',
+    ],
+  },
 ]
 
-function normalize(s: string) {
-  return s.trim().replace(/\s+/g, ' ')
-}
+const HEADER_COLOR = '#8A857F'
 
 export default function Page() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const step = getStepNumber(pathname)
   const totalSteps = getTotalSteps()
+  const step = getStepNumber(pathname)
   const nextPath = useMemo(() => getNextStep(pathname), [pathname])
 
   const [selected, setSelected] = useState<string[]>([])
-  const [custom, setCustom] = useState('')
-
   const canContinue = selected.length > 0
-  const addEnabled = normalize(custom).length > 0
 
   function toggle(label: string) {
-    setSelected((prev) =>
-      prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]
-    )
-  }
-
-  function addCustom() {
-    const v = normalize(custom)
-    if (!v) return
-
-    const lower = v.toLowerCase()
-    const exists = selected.some((x) => x.toLowerCase() === lower)
-
-    if (!exists) setSelected((prev) => [...prev, v])
-    setCustom('')
+    setSelected((prev) => (prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]))
   }
 
   async function onContinue() {
-    if (!canContinue) return
-
     const res = await saveProgress({
       onboarding_step_path: pathname,
       profile_data: { identity: selected },
     })
-
-    if (res?.ok) router.push(nextPath)
+    if (!res.ok) return
+    router.push(nextPath)
   }
 
   return (
     <Base44Shell
       step={step}
       totalSteps={totalSteps}
-      title="What feels true to who you are or what's shaped you?"
-      subtitle="Surface people you won't have to explain yourself to."
+      title="What feels true to who you are or what’s shaped you?"
+      subtitle="Connect with people you won’t have to overexplain yourself to."
     >
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        {/* Pills */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-        >
-          {[...OPTIONS, ...selected.filter((x) => !OPTIONS.includes(x))].map((label) => {
-            const isOn = selected.includes(label)
-            const isCustom = !OPTIONS.includes(label)
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 920,
+          margin: '0 auto',
+          padding: 24,
+          boxSizing: 'border-box',
+        }}
+      >
+        <div style={{ textAlign: 'center', fontSize: 13, color: '#78716c', marginBottom: 14 }}>Select all that apply</div>
 
-            return (
-              <button
-                key={label}
-                type="button"
-                onClick={() => toggle(label)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '6px 12px',
-                  borderRadius: 999,
-                  border: isOn ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
-                  background: isOn ? '#D9D2C9' : '#F9F8F6',
-                  color: '#2D2926',
-                  fontSize: 13,
-                  lineHeight: 1.1,
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <span>{label}</span>
-
-                {isCustom && (
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelected((prev) => prev.filter((x) => x !== label))
-                    }}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 18,
-                      height: 18,
-                      borderRadius: 999,
-                      background: 'rgba(45, 41, 38, 0.1)',
-                      fontSize: 12,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    ×
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Add your own */}
-        <div style={{ marginTop: 18, maxWidth: 600, marginInline: 'auto' }}>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              value={custom}
-              onChange={(e) => setCustom(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  if (addEnabled) addCustom()
-                }
-              }}
-              placeholder="Add your own…"
+        {SECTIONS.map((section) => (
+          <div key={section.key} style={{ marginBottom: 22 }}>
+            <div
               style={{
-                height: 44,
-                width: '100%',
-                borderRadius: 12,
-                border: '1px solid #EBE7E0',
-                padding: '0 14px',
-                fontSize: 14,
-                outline: 'none',
-                background: '#FDFDFD',
-              }}
-            />
-            <button
-              type="button"
-              onClick={addCustom}
-              disabled={!addEnabled}
-              style={{
-                height: 44,
-                padding: '0 14px',
-                borderRadius: 12,
-                border: '1px solid #EBE7E0',
-                background: addEnabled ? '#FDFDFD' : '#D9D2C9',
-                color: '#2D2926',
-                fontSize: 14,
-                cursor: addEnabled ? 'pointer' : 'default',
-                whiteSpace: 'nowrap',
+                textAlign: 'center',
+                fontSize: 13,
+                letterSpacing: '0.08em',
+                color: HEADER_COLOR,
+                fontWeight: 700,
+                marginBottom: 12, // gives breathing room under header
               }}
             >
-              Add
-            </button>
-          </div>
-        </div>
+              {section.title}
+            </div>
 
-        {/* Continue */}
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: 10, // tighter + cleaner than looking “sprayed”
+                rowGap: 10,
+                maxWidth: 860,
+                margin: '0 auto',
+              }}
+            >
+              {section.options.map((label) => (
+                <Pill
+                  key={label}
+                  label={label}
+                  selected={selected.includes(label)}
+                  onToggle={() => toggle(label)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
         <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
-          <button
-            type="button"
-            disabled={!canContinue}
-            onClick={onContinue}
-            style={{
-              height: 48,
-              width: '100%',
-              maxWidth: 600,
-              borderRadius: 999,
-              background: canContinue ? '#FDFDFD' : '#D9D2C9',
-              color: '#2D2926',
-              border: '1px solid #EBE7E0',
-              fontSize: 15,
-              fontWeight: 500,
-              cursor: canContinue ? 'pointer' : 'default',
-            }}
-          >
-            Continue
-          </button>
+          <div style={{ width: '100%', maxWidth: 600 }}>
+            <InviteStyleButton canSubmit={canContinue} onClick={onContinue}>
+              Continue
+            </InviteStyleButton>
+          </div>
         </div>
       </div>
     </Base44Shell>

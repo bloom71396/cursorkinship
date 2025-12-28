@@ -3,20 +3,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 import { getSupabaseBrowserClient } from '@/lib/supabase/browser'
 
-const PROVIDER_ROLES = [
-  'Therapist',
-  'Physician',
-  'Nurse Practitioner',
-  'Registered Nurse',
-  'Doula',
-  'Coach',
-  'Nutritionist',
-  'Other',
-]
+const PROVIDER_ROLES = ['Therapist', 'Physician', 'Nurse Practitioner', 'Registered Nurse', 'Doula', 'Coach', 'Nutritionist', 'Other']
 
 const inputStyle: React.CSSProperties = {
   height: 44,
@@ -24,7 +16,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 12,
   border: '1px solid #EBE7E0',
   padding: '0 14px',
-  fontSize: 14,
+  fontSize: 16,
   outline: 'none',
   boxSizing: 'border-box',
   background: '#FDFDFD',
@@ -38,11 +30,12 @@ function choiceStyle(active: boolean, disabled?: boolean): React.CSSProperties {
     border: active ? '1px solid #EBE7E0' : '1px solid #FFFFFF',
     background: active ? '#D9D2C9' : '#F9F8F6',
     color: '#2D2926',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 500,
     cursor: disabled ? 'default' : 'pointer',
     opacity: disabled ? 0.85 : 1,
     transition: 'background 120ms ease, color 120ms ease, border 120ms ease, opacity 120ms ease',
+    WebkitTapHighlightColor: 'transparent',
   }
 }
 
@@ -82,15 +75,9 @@ export default function Page() {
           return
         }
 
-        const { data: row } = await supabase
-          .from('user_profiles')
-          .select('profile_data')
-          .eq('user_id', user.id)
-          .maybeSingle()
+        const { data: row } = await supabase.from('user_profiles').select('profile_data').eq('user_id', user.id).maybeSingle()
 
         const pd = (row?.profile_data ?? {}) as ProviderProfileData
-
-        // Only lock after Continue (provider_locked === true)
         const isLocked = pd.provider_locked === true
 
         if (isLocked) {
@@ -130,7 +117,6 @@ export default function Page() {
   async function onContinue() {
     if (!canContinue) return
 
-    // If already locked, do not resave. Just advance.
     if (locked) {
       router.push(nextPath)
       return
@@ -160,18 +146,12 @@ export default function Page() {
   const showRoleFields = isProvider === true
 
   return (
-    <Base44Shell
-      step={step}
-      totalSteps={totalSteps}
-      title="Are you a provider?"
-      subtitle="This helps tailor discussions. Your real identity is always private."
-    >
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+    <Base44Shell step={step} totalSteps={totalSteps} title="Are you a provider?" subtitle="This helps tailor discussions. Your real identity is always private.">
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px' }}>
         {loading ? (
           <div style={{ height: 140 }} />
         ) : (
           <>
-            {/* If not answered yet */}
             {isProvider === null && !locked && (
               <div style={{ display: 'flex', gap: 10 }}>
                 <button type="button" onClick={() => setIsProvider(true)} style={choiceStyle(false)}>
@@ -183,7 +163,6 @@ export default function Page() {
               </div>
             )}
 
-            {/* If answered (or locked state hydrated) */}
             {isProvider !== null && (
               <>
                 <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
@@ -205,16 +184,8 @@ export default function Page() {
                   </button>
                 </div>
 
-                {/* COPY shows ONLY after Continue (locked) */}
                 {locked && (
-                  <div
-                    style={{
-                      textAlign: 'center',
-                      fontSize: 13,
-                      color: '#6B6560',
-                      marginBottom: 18,
-                    }}
-                  >
+                  <div style={{ textAlign: 'center', fontSize: 13, color: '#6B6560', marginBottom: 18 }}>
                     Providers are marked with a badge for trust and transparency.
                   </div>
                 )}
@@ -226,11 +197,7 @@ export default function Page() {
                 <select
                   value={role}
                   onChange={(e) => (!locked ? setRole(e.target.value) : undefined)}
-                  style={{
-                    ...inputStyle,
-                    opacity: locked ? 0.9 : 1,
-                    cursor: locked ? 'default' : 'pointer',
-                  }}
+                  style={{ ...inputStyle, opacity: locked ? 0.9 : 1, cursor: locked ? 'default' : 'pointer' }}
                   disabled={locked}
                 >
                   <option value="">Select your role</option>
@@ -247,11 +214,7 @@ export default function Page() {
                       value={customRole}
                       onChange={(e) => (!locked ? setCustomRole(e.target.value) : undefined)}
                       placeholder="Specify your role…"
-                      style={{
-                        ...inputStyle,
-                        opacity: locked ? 0.9 : 1,
-                        cursor: locked ? 'default' : 'text',
-                      }}
+                      style={{ ...inputStyle, opacity: locked ? 0.9 : 1, cursor: locked ? 'default' : 'text' }}
                       disabled={locked}
                     />
                   </div>
@@ -261,25 +224,11 @@ export default function Page() {
 
             {(isProvider !== null || locked) && (
               <div style={{ marginTop: 22, display: 'flex', justifyContent: 'center' }}>
-                <button
-                  type="button"
-                  onClick={onContinue}
-                  disabled={!canContinue}
-                  style={{
-                    height: 48,
-                    width: '100%',
-                    borderRadius: 999,
-                    background: canContinue ? '#FDFDFD' : '#D9D2C9',
-                    color: '#2D2926',
-                    border: '1px solid #EBE7E0',
-                    fontSize: 15,
-                    fontWeight: 500,
-                    cursor: canContinue ? 'pointer' : 'default',
-                    transition: 'background 120ms ease',
-                  }}
-                >
-                  Continue
-                </button>
+                <div style={{ width: '100%' }}>
+                  <InviteStyleButton canSubmit={!!canContinue} onClick={onContinue}>
+                    Continue
+                  </InviteStyleButton>
+                </div>
               </div>
             )}
           </>

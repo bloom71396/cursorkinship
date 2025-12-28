@@ -1,9 +1,9 @@
-// app/onboarding/location/page.tsx
 'use client'
 
 import React, { useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 
@@ -357,43 +357,13 @@ export default function Page() {
           </div>
         </div>
 
-        {/* Continue button (life-stage: grey -> black when enabled) */}
+        {/* Continue */}
         <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
-          <button
-            type="button"
-            onClick={onContinue}
-            disabled={!canContinue}
-            style={{
-              height: 48,
-              width: '100%',
-              maxWidth: 600,
-              borderRadius: 999,
-              background: canContinue ? '#FDFDFD' : '#D9D2C9',
-              color: '#2D2926',
-              border: '1px solid #EBE7E0',
-              fontSize: 15,
-              fontWeight: 500,
-              cursor: canContinue ? 'pointer' : 'default',
-              transition: 'background 120ms ease',
-            }}
-            onMouseDown={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#D9D2C9'
-              }
-            }}
-            onMouseUp={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#FDFDFD'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (canContinue) {
-                e.currentTarget.style.backgroundColor = '#FDFDFD'
-              }
-            }}
-          >
-            Continue
-          </button>
+          <div style={{ width: '100%', maxWidth: 600 }}>
+            <InviteStyleButton canSubmit={canContinue} onClick={onContinue}>
+              Continue
+            </InviteStyleButton>
+          </div>
         </div>
       </div>
     </Base44Shell>

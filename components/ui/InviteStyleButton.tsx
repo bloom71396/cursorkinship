@@ -14,7 +14,7 @@ export default function InviteStyleButton({
   ...props
 }: Props) {
   const disabled = !canSubmit || loading
-  const activeColor = disabled ? '#D9D2C9' : '#FDFDFD'
+  const activeColor = disabled ? '#FDFDFD' : '#D9D2C9'
   const pressedColor = '#D9D2C9'
 
   return (
@@ -44,15 +44,15 @@ export default function InviteStyleButton({
         height: '48px',
         width: '100%',
         backgroundColor: activeColor,
-        color: '#2D2926',
+        color: disabled ? '#9B958E' : '#2D2926',
         borderRadius: '9999px',
         border: '1px solid #EBE7E0',
-        fontSize: '14px',
+        fontSize: '16px',
         cursor: disabled ? 'not-allowed' : 'pointer',
         fontWeight: '400',
         outline: 'none',
         WebkitTapHighlightColor: 'transparent',
-        opacity: loading ? 0.85 : 1,
+        opacity: disabled ? 0.6 : 1,
         transition: 'background 120ms ease',
         ...(props.style || {}),
       }}

@@ -63,11 +63,11 @@ export default function MultiSelectPills({
 
   return (
     <div>
-      {helperText ? (
-        <div style={{ marginTop: 10, fontSize: 13, color: '#6B625D' }}>{helperText}</div>
-      ) : null}
+      <div style={{ marginBottom: 12, fontSize: 13, color: '#6B625D' }}>
+        Select all that apply
+      </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: helperText ? 14 : 0 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 0 }}>
         {displayOptions.map((label) => {
           const active = selected.includes(label)
           const custom = isCustom(label)
@@ -83,7 +83,7 @@ export default function MultiSelectPills({
                 gap: 8,
                 borderRadius: 9999,
                 padding: '10px 16px',
-                fontSize: 14,
+                fontSize: 16,
                 border: `1px solid ${active ? COLOR_PILL_SELECTED_BORDER : COLOR_PILL_UNSELECTED_BORDER}`,
                 background: active ? COLOR_PILL_SELECTED_BG : COLOR_PILL_UNSELECTED_BG,
                 color: COLOR_TEXT_PRIMARY,
@@ -175,11 +175,12 @@ export default function MultiSelectPills({
                 borderRadius: 12,
                 padding: '0 14px',
                 fontSize: 14,
-                background: isAddDisabled ? COLOR_GREIGE : COLOR_BUTTON_DEFAULT,
-                color: COLOR_TEXT_PRIMARY,
+                background: isAddDisabled ? '#FDFDFD' : COLOR_BUTTON_ACTIVE,
+                color: isAddDisabled ? '#9B958E' : COLOR_TEXT_PRIMARY,
                 border: `1px solid ${COLOR_PILL_SELECTED_BORDER}`,
-                cursor: isAddDisabled ? 'default' : 'pointer',
+                cursor: isAddDisabled ? 'not-allowed' : 'pointer',
                 transition: 'background 0.2s',
+                opacity: isAddDisabled ? 0.6 : 1,
               }}
               onMouseDown={(e) => {
                 if (!isAddDisabled) {
@@ -188,12 +189,12 @@ export default function MultiSelectPills({
               }}
               onMouseUp={(e) => {
                 if (!isAddDisabled) {
-                  e.currentTarget.style.backgroundColor = COLOR_BUTTON_DEFAULT
+                  e.currentTarget.style.backgroundColor = COLOR_BUTTON_ACTIVE
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isAddDisabled) {
-                  e.currentTarget.style.backgroundColor = COLOR_BUTTON_DEFAULT
+                  e.currentTarget.style.backgroundColor = COLOR_BUTTON_ACTIVE
                 }
               }}
             >

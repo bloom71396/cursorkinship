@@ -8,47 +8,136 @@ import { saveProgress } from '@/lib/saveProgress'
 import InviteStyleButton from '@/components/ui/InviteStyleButton'
 import Pill from '@/components/ui/Pill'
 
-const DEFAULT_OPTIONS = [
-  // Relationship / living situation
-  "Single city life",
-  "Single / Dating",
-  "In a couple",
-  "Married / Long-term partnered",
-  "Living with roommates",
-  "Living alone",
-  "Living with parents / moved back home",
-
-  // Big milestones
-  "Pre-wedding",
-  "Aesthetic goals",
-  "Recently moved to a new city",
-
-  // School / work
-  "College student",
-  "Grad student",
-  "Gap year",
-  "Early career",
-  "Career-focused",
-  "Career pivot",
-  "Going back to school",
-  "Remote / hybrid worker",
-
-  // Parenting & family
-  "Pregnant",
-  "Trying to conceive / fertility journey",
-  "Postpartum",
-  "New parent",
-  "Single parent",
-  "Parenting young kids",
-  "Parenting teens",
-  "Empty nester",
-
-  // Caregiving / later life
-  "Caregiver for parent",
-  "Caregiver for partner or child",
-  "Perimenopause / menopause",
-  "Retirement / semi-retirement",
+const LIFE_STAGE_SECTIONS = [
+  {
+    title: 'Relationships + social life',
+    options: [
+      'Single / Dating',
+      'Dating again',
+      'In a couple',
+      'Married / Long-term partnered',
+      'Newly engaged',
+      'Pre-wedding',
+      'Long-distance relationship',
+      'Recently ended a relationship',
+      'Separated / divorced',
+      'Co-parenting',
+      'Making new friends as an adult',
+      'Rebuilding my social life',
+      'Feeling socially anxious / out of practice',
+    ],
+  },
+  {
+    title: 'Home + living situation',
+    options: [
+      'Living alone',
+      'Living alone for the first time',
+      'Living with roommates',
+      'Living with a partner',
+      'Moving in with a partner',
+      'Moving out / starting over',
+      'Living with parents / moved back home',
+      'Buying a home',
+      'Renting a new place',
+      'New apartment setup / nesting',
+      'Split time between two places',
+      'Caring for someone at home',
+    ],
+  },
+  {
+    title: 'City + movement',
+    options: [
+      'Moved to a new city',
+      'Moved to a new neighborhood',
+      'Trying to find my people here',
+      'Commuter life',
+      'Travel-heavy lifestyle',
+      'Long distance from family',
+      'Gap year',
+    ],
+  },
+  {
+    title: 'Work + ambition',
+    options: [
+      'Early career',
+      'Career-focused',
+      'Career pivot',
+      'Interviewing / job hunting',
+      'New job / new team',
+      'Remote / hybrid worker',
+      'Freelance / self-employed',
+      'Building a company',
+      'Startup life',
+      'Side project era',
+      'Burnout / high-stress season',
+      'Night shift / non-9-to-5 schedule',
+      'Returning to work after time off',
+    ],
+  },
+  {
+    title: 'School',
+    options: [
+      'College student',
+      'Grad student',
+      'Starting a new program',
+      'Finishing school / entering workforce',
+      'Balancing school + work',
+    ],
+  },
+  {
+    title: 'Family + caregiving',
+    options: [
+      'Trying to conceive / fertility journey',
+      'Egg freezing / fertility planning',
+      'Pregnant',
+      'Postpartum',
+      'New parent',
+      'Single parent',
+      'Co-parenting',
+      'Parenting young kids',
+      'Parenting teens',
+      'Empty nester',
+      'Supporting aging parents',
+      'Caregiver for parent',
+      'Caregiver for partner or child',
+      'Big family transition',
+    ],
+  },
+  {
+    title: 'Personal season',
+    options: [
+      'Mental health focus',
+      'Starting therapy / coaching',
+      'Healing era',
+      'Spiritual journey',
+      'Identity exploration',
+      'Grief / loss',
+      'Sober / sober-curious',
+      'Trying to build better habits',
+      'Injury recovery',
+      'Chronic health management',
+      'Hormone / body changes',
+      'Perimenopause / menopause',
+      'Aesthetic goals',
+      'Confidence reset',
+      'Retirement / semi-retirement',
+    ],
+  },
 ]
+
+function normalize(s: string) {
+  return s.trim().replace(/\s+/g, ' ')
+}
+
+function uniq(list: string[]) {
+  const seen = new Set<string>()
+  return list.filter((item) => {
+    const key = item.toLowerCase()
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
 
 export default function Page() {
   const router = useRouter()
@@ -58,36 +147,37 @@ export default function Page() {
   const [custom, setCustom] = useState<string[]>([])
   const [customInput, setCustomInput] = useState('')
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const options = useMemo(() => {
-    // Show defaults + customs (customs appear selected + removable)
-    const set = new Set<string>(DEFAULT_OPTIONS)
-    custom.forEach((c) => set.add(c))
-    return Array.from(set)
-  }, [custom])
+  const nextPath = useMemo(() => getNextStep(pathname), [pathname])
+  const allDefaults = useMemo(
+    () => uniq(LIFE_STAGE_SECTIONS.flatMap((s) => s.options)),
+    []
+  )
 
-  function toggleOption(label: string) {
-    setSelected((prev) => {
-      const has = prev.includes(label)
-      return has ? prev.filter((x) => x !== label) : [...prev, label]
-    })
-    if (error) setError(null)
+  function toggle(label: string) {
+    setSelected((prev) =>
+      prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]
+    )
   }
 
   function addCustom() {
-    const v = customInput.trim()
-    if (!v) return
-    if (custom.includes(v) || DEFAULT_OPTIONS.includes(v)) {
-      // Still select it if it already exists
-      setSelected((prev) => (prev.includes(v) ? prev : [...prev, v]))
-      setCustomInput('')
-      return
+    const value = normalize(customInput)
+    if (!value) return
+
+    if (
+      !allDefaults.some((x) => x.toLowerCase() === value.toLowerCase()) &&
+      !custom.some((x) => x.toLowerCase() === value.toLowerCase())
+    ) {
+      setCustom((prev) => [...prev, value])
     }
-    setCustom((prev) => [...prev, v])
-    setSelected((prev) => (prev.includes(v) ? prev : [...prev, v]))
+
+    setSelected((prev) =>
+      prev.some((x) => x.toLowerCase() === value.toLowerCase())
+        ? prev
+        : [...prev, value]
+    )
+
     setCustomInput('')
-    if (error) setError(null)
   }
 
   function removeCustom(label: string) {
@@ -95,30 +185,23 @@ export default function Page() {
     setSelected((prev) => prev.filter((x) => x !== label))
   }
 
-  const canSubmit = selected.length > 0 && !saving
+  const canContinue = selected.length > 0 && !saving
+  const canAdd = normalize(customInput).length > 0
 
   async function onContinue() {
-    if (!canSubmit) return
+    if (!canContinue) return
     setSaving(true)
-    setError(null)
-
-    const next = getNextStep(pathname)
 
     const res = await saveProgress({
-      onboarding_step_path: next,
+      onboarding_step_path: pathname,
       profile_data: {
         life_stage_selected: selected,
         life_stage_custom: custom,
       },
     })
 
-    if (!res.ok) {
-      setError(res.error)
-      setSaving(false)
-      return
-    }
-
-    router.push(next)
+    if (res.ok) router.push(nextPath)
+    else setSaving(false)
   }
 
   return (
@@ -128,95 +211,139 @@ export default function Page() {
       title="What best describes your life right now?"
       subtitle="People in the same life stage tend to get each other quickly."
     >
-      <div style={{ width: '100%', maxWidth: '860px', margin: '0 auto' }}>
-        <div style={{ width: '100%', padding: '26px', boxSizing: 'border-box', background: 'transparent' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {options.map((label) => {
-              const isSelected = selected.includes(label)
-              const isCustom = custom.includes(label)
-              return (
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: 26 }}>
+        {LIFE_STAGE_SECTIONS.map((section) => (
+          <div key={section.title}>
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: '#9B9086',
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+                textAlign: 'center',
+                marginTop: 34,
+                marginBottom: 22,
+              }}
+            >
+              {section.title}
+            </div>
+
+            <div
+              style={{
+                marginTop: 10,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+                gap: 10,
+                justifyItems: 'center',
+              }}
+            >
+              {section.options.map((label) => (
                 <Pill
                   key={label}
                   label={label}
-                  selected={isSelected}
-                  onToggle={() => toggleOption(label)}
-                  onRemove={isCustom ? () => removeCustom(label) : undefined}
+                  selected={selected.includes(label)}
+                  onToggle={() => toggle(label)}
                 />
-              )
-            })}
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {custom.length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#6B625D',
+                marginTop: 34,
+                marginBottom: 22,
+                textAlign: 'center',
+              }}
+            >
+              Added by you
+            </div>
+
+            <div
+              style={{
+                marginTop: 10,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+                gap: 10,
+                justifyItems: 'center',
+              }}
+            >
+              {custom.map((label) => (
+                <Pill
+                  key={label}
+                  label={label}
+                  selected={selected.includes(label)}
+                  onToggle={() => toggle(label)}
+                  onRemove={() => removeCustom(label)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add custom */}
+        <div
+          style={{
+            marginTop: 34,
+            paddingTop: 18,
+            borderTop: '1px solid #EFEAE4',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <input
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && canAdd) {
+                  e.preventDefault()
+                  addCustom()
+                }
+              }}
+              placeholder="Don't see yourself? Type your own"
+              style={{
+                height: 48,
+                flex: '1 1 0%',
+                minWidth: 0,
+                backgroundColor: '#FDFDFD',
+                border: '1px solid #EBE7E0',
+                borderRadius: 12,
+                padding: '0 16px',
+                fontSize: 16,
+              }}
+            />
+
+<InviteStyleButton
+  canSubmit={canAdd}
+  onClick={addCustom}
+  style={{
+    width: 'auto',          // ← THIS is the missing piece
+    height: 48,
+    padding: '0 16px',      // keeps it small
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+  }}
+>
+  Add
+</InviteStyleButton>
           </div>
 
-          <div style={{ marginTop: '18px' }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#1c1917', marginBottom: '10px' }}>
-              Don’t see yourself? Add your own.
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <input
-                value={customInput}
-                onChange={(e) => {
-                  setCustomInput(e.target.value)
-                  if (error) setError(null)
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addCustom()
-                  }
-                }}
-                placeholder="Type and press Enter"
-                style={{
-                  height: '48px',
-                  flex: '1 1 320px',
-                  minWidth: '260px',
-                  backgroundColor: '#FDFDFD',
-                  border: '1px solid #EBE7E0',
-                  borderRadius: '12px',
-                  padding: '0 16px',
-                  fontSize: '14px',
-                  color: '#2D2926',
-                  boxSizing: 'border-box',
-                }}
-              />
-
-              <button
-                type="button"
-                onClick={addCustom}
-                style={{
-                  height: '48px',
-                  padding: '0 18px',
-                  backgroundColor: '#FDFDFD',
-                  color: '#2D2926',
-                  borderRadius: '12px',
-                  border: '1px solid #EBE7E0',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  fontWeight: 400,
-                  transition: 'background 120ms ease',
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.backgroundColor = '#D9D2C9'
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FDFDFD'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FDFDFD'
-                }}
-              >
-                Add
-              </button>
-            </div>
-
-            {error ? (
-              <p style={{ marginTop: '10px', fontSize: '13px', color: '#b91c1c' }}>{error}</p>
-            ) : null}
-
-            <div style={{ marginTop: '18px' }}>
-              <InviteStyleButton canSubmit={canSubmit} loading={saving} onClick={onContinue}>
-                {saving ? 'Saving…' : 'Continue'}
-              </InviteStyleButton>
-            </div>
+          <div style={{ marginTop: 20 }}>
+            <InviteStyleButton canSubmit={canContinue} loading={saving} onClick={onContinue}>
+              {saving ? 'Saving…' : 'Continue'}
+            </InviteStyleButton>
           </div>
         </div>
       </div>

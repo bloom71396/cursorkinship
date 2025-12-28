@@ -1,14 +1,14 @@
-// app/onboarding/username/page.tsx
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Base44Shell from '@/components/onboarding/Base44Shell'
+import InviteStyleButton from '@/components/ui/InviteStyleButton'
 import { getNextStep, getStepNumber, getTotalSteps } from '@/lib/onboarding'
 import { saveProgress } from '@/lib/saveProgress'
 import { getSupabaseBrowserClient } from '@/lib/supabase/browser'
 
-/* ---------- BIG WORD BANKS (mixed categories) ---------- */
+/* ---------- WORD BANKS ---------- */
 
 const DESCRIPTORS = [
   'Quiet','Bold','Gentle','Curious','Honest','Calm','Sharp','Warm','Soft','Clever','Patient','Brave','Witty','Serene',
@@ -41,47 +41,25 @@ const PLACES = [
 function pick<T>(arr: T[]) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
-
 function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
-
-// Optional suffix to reduce collisions without always looking like a gamer tag
 function maybeSuffix() {
-  // ~30% chance
   if (Math.random() > 0.3) return ''
-  const n = randInt(100, 9999)
-  return ` ${n}`
+  return ` ${randInt(100, 9999)}`
 }
-
 function generateAlias(): string {
   const pattern = randInt(0, 6)
-
   let base = ''
   switch (pattern) {
-    case 0:
-      base = `${pick(DESCRIPTORS)} ${pick(OBJECTS)}`
-      break
-    case 1:
-      base = `${pick(DESCRIPTORS)} ${pick(ROLES)}`
-      break
-    case 2:
-      base = `${pick(ROLES)} of ${pick(CONCEPTS)}`
-      break
-    case 3:
-      base = `${pick(CONCEPTS)} ${pick(OBJECTS)}`
-      break
-    case 4:
-      base = `${pick(DESCRIPTORS)} ${pick(CONCEPTS)}`
-      break
-    case 5:
-      base = `${pick(PLACES)} ${pick(OBJECTS)}`
-      break
-    default:
-      base = `${pick(DESCRIPTORS)} ${pick(OBJECTS)} ${pick(OBJECTS)}`
-      break
+    case 0: base = `${pick(DESCRIPTORS)} ${pick(OBJECTS)}`; break
+    case 1: base = `${pick(DESCRIPTORS)} ${pick(ROLES)}`; break
+    case 2: base = `${pick(ROLES)} of ${pick(CONCEPTS)}`; break
+    case 3: base = `${pick(CONCEPTS)} ${pick(OBJECTS)}`; break
+    case 4: base = `${pick(DESCRIPTORS)} ${pick(CONCEPTS)}`; break
+    case 5: base = `${pick(PLACES)} ${pick(OBJECTS)}`; break
+    default: base = `${pick(DESCRIPTORS)} ${pick(OBJECTS)} ${pick(OBJECTS)}`
   }
-
   return `${base}${maybeSuffix()}`.replace(/\s+/g, ' ').trim()
 }
 
@@ -93,9 +71,6 @@ const CARD: React.CSSProperties = {
   margin: '0 auto',
   padding: 24,
   borderRadius: 18,
-  border: '1px solid transparent',
-  background: 'transparent',
-  boxSizing: 'border-box',
 }
 
 const inputStyle: React.CSSProperties = {
@@ -104,14 +79,13 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 12,
   border: '1px solid #EBE7E0',
   padding: '0 14px',
-  fontSize: 14,
+  fontSize: 16,
   outline: 'none',
-  boxSizing: 'border-box',
   background: '#FDFDFD',
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: 16,
   color: '#4B4B4B',
   marginBottom: 6,
   fontWeight: 500,
@@ -123,40 +97,29 @@ const shuffleBtnStyle: React.CSSProperties = {
   borderRadius: 12,
   border: '1px solid #EBE7E0',
   background: '#FDFDFD',
-  color: '#2D2926',
-  fontSize: 14,
+  fontSize: 16,
   cursor: 'pointer',
   whiteSpace: 'nowrap',
-  transition: 'background 120ms ease',
 }
 
-/* ---------- UNIQUENESS CHECK ---------- */
+/* ---------- HELPERS ---------- */
 
 async function isAliasTaken(alias: string): Promise<boolean> {
   const supabase = getSupabaseBrowserClient()
-
-  // Assumes you store aliases in public.user_profiles.anonymous_username
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('user_profiles')
     .select('user_id')
     .eq('anonymous_username', alias)
     .limit(1)
-
-  if (error) {
-    // If the check fails, don’t block onboarding; treat as “unknown” (not taken).
-    return false
-  }
   return !!data && data.length > 0
 }
 
 async function getAvailableAlias(maxTries = 8): Promise<string> {
   for (let i = 0; i < maxTries; i++) {
     const candidate = generateAlias()
-    const taken = await isAliasTaken(candidate)
-    if (!taken) return candidate
+    if (!(await isAliasTaken(candidate))) return candidate
   }
-  // If we somehow keep colliding, force a suffix
-  return `${generateAlias()} ${randInt(1000, 9999)}`.replace(/\s+/g, ' ').trim()
+  return `${generateAlias()} ${randInt(1000, 9999)}`
 }
 
 /* ---------- PAGE ---------- */
@@ -178,23 +141,21 @@ export default function Page() {
   useEffect(() => {
     ;(async () => {
       setLoading(true)
-      const a = await getAvailableAlias(6)
-      setAlias(a)
+      setAlias(await getAvailableAlias(6))
       setLoading(false)
     })()
   }, [])
 
   const canContinue =
-    firstName.trim().length > 0 &&
-    lastName.trim().length > 0 &&
-    alias.trim().length > 0 &&
+    firstName.trim() &&
+    lastName.trim() &&
+    alias.trim() &&
     !loading
 
   async function onShuffle() {
     setError('')
     setLoading(true)
-    const a = await getAvailableAlias(6)
-    setAlias(a)
+    setAlias(await getAvailableAlias(6))
     setLoading(false)
   }
 
@@ -204,13 +165,9 @@ export default function Page() {
       return
     }
 
-    setError('')
     setLoading(true)
-
-    // If user typed their own alias, check it too
     const trimmedAlias = alias.trim()
-    const taken = await isAliasTaken(trimmedAlias)
-    if (taken) {
+    if (await isAliasTaken(trimmedAlias)) {
       setLoading(false)
       setError('That alias is taken. Try shuffling or tweak it a bit.')
       return
@@ -226,8 +183,7 @@ export default function Page() {
     })
 
     setLoading(false)
-    if (!res?.ok) return
-    router.push(nextPath)
+    if (res?.ok) router.push(nextPath)
   }
 
   return (
@@ -238,7 +194,7 @@ export default function Page() {
       subtitle="Your real name stays private. Others only see your alias."
     >
       <div style={CARD}>
-        <div style={{ width: '100%', maxWidth: 600, margin: '0 auto' }}>
+        <div style={{ maxWidth: 600, margin: '0 auto' }}>
           <div style={{ marginBottom: 14 }}>
             <div style={labelStyle}>First name *</div>
             <input value={firstName} onChange={(e) => setFirstName(e.target.value)} style={inputStyle} />
@@ -253,27 +209,7 @@ export default function Page() {
             <div style={labelStyle}>Alias *</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <input value={alias} onChange={(e) => setAlias(e.target.value)} style={inputStyle} />
-              <button
-                type="button"
-                onClick={onShuffle}
-                style={shuffleBtnStyle}
-                disabled={loading}
-                onMouseDown={(e) => {
-                  if (!loading) {
-                    e.currentTarget.style.backgroundColor = '#D9D2C9'
-                  }
-                }}
-                onMouseUp={(e) => {
-                  if (!loading) {
-                    e.currentTarget.style.backgroundColor = '#FDFDFD'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!loading) {
-                    e.currentTarget.style.backgroundColor = '#FDFDFD'
-                  }
-                }}
-              >
+              <button type="button" onClick={onShuffle} style={shuffleBtnStyle} disabled={loading}>
                 {loading ? '…' : 'Pick for me'}
               </button>
             </div>
@@ -282,40 +218,9 @@ export default function Page() {
           {error && <div style={{ color: '#C24141', fontSize: 13, marginTop: 6 }}>{error}</div>}
 
           <div style={{ marginTop: 18 }}>
-            <button
-              type="button"
-              onClick={onContinue}
-              disabled={!canContinue}
-              style={{
-                height: 48,
-                width: '100%',
-                borderRadius: 999,
-                background: canContinue ? '#FDFDFD' : '#D9D2C9',
-                color: '#2D2926',
-                border: '1px solid #EBE7E0',
-                fontSize: 15,
-                fontWeight: 500,
-                cursor: canContinue ? 'pointer' : 'default',
-                transition: 'background 120ms ease',
-              }}
-              onMouseDown={(e) => {
-                if (canContinue) {
-                  e.currentTarget.style.backgroundColor = '#D9D2C9'
-                }
-              }}
-              onMouseUp={(e) => {
-                if (canContinue) {
-                  e.currentTarget.style.backgroundColor = '#FDFDFD'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (canContinue) {
-                  e.currentTarget.style.backgroundColor = '#FDFDFD'
-                }
-              }}
-            >
+            <InviteStyleButton canSubmit={!!canContinue} onClick={onContinue}>
               Continue
-            </button>
+            </InviteStyleButton>
           </div>
         </div>
       </div>

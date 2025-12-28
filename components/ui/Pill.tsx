@@ -4,33 +4,53 @@ import React from 'react'
 
 type PillProps = {
   label: string
-  selected?: boolean
-  onToggle?: () => void
-  onRemove?: () => void // show X when provided
+  selected: boolean
+  onToggle: () => void
+  onRemove?: () => void
+  fullWidth?: boolean
+  size?: 'sm' | 'md'
 }
 
-export default function Pill({ label, selected = false, onToggle, onRemove }: PillProps) {
+export default function Pill({
+  label,
+  selected,
+  onToggle,
+  onRemove,
+  fullWidth = false,
+  size = 'md',
+}: PillProps) {
+  const padY = size === 'sm' ? 8 : 10
+  const padX = size === 'sm' ? 14 : 16
+  const fontSize = size === 'sm' ? 15 : 16
+  const minHeight = size === 'sm' ? 40 : 44
+
   return (
     <button
       type="button"
       onClick={onToggle}
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 12px',
-        borderRadius: '9999px',
-        border: `1px solid ${selected ? '#EBE7E0' : '#FFFFFF'}`,
+        width: fullWidth ? '100%' : 'auto',
+        minHeight: minHeight,
+        padding: `${padY}px ${padX}px`,
+        borderRadius: 9999,
+        border: '2px solid #C9C1B8',
         backgroundColor: selected ? '#D9D2C9' : '#F9F8F6',
         color: '#2D2926',
-        fontSize: '14px',
-        lineHeight: 1,
+        fontSize: fontSize,
+        lineHeight: 1.1,
         cursor: 'pointer',
         userSelect: 'none',
-        whiteSpace: 'nowrap',
+        textAlign: 'center',
+        whiteSpace: fullWidth ? 'normal' : 'nowrap',
+        WebkitTapHighlightColor: 'transparent',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        boxSizing: 'border-box',
       }}
     >
-      <span style={{ display: 'inline-block' }}>{label}</span>
+      <span>{label}</span>
 
       {onRemove ? (
         <span
@@ -38,20 +58,22 @@ export default function Pill({ label, selected = false, onToggle, onRemove }: Pi
             e.stopPropagation()
             onRemove()
           }}
+          role="button"
+          aria-label={`Remove ${label}`}
           style={{
+            width: 18,
+            height: 18,
+            borderRadius: 9999,
+            backgroundColor: 'rgba(45, 41, 38, 0.12)',
+            color: '#2D2926',
+            fontSize: 14,
+            lineHeight: 1,
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '18px',
-            height: '18px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(45, 41, 38, 0.1)',
-            color: '#2D2926',
-            fontSize: '12px',
-            lineHeight: 1,
+            cursor: 'pointer',
+            flex: '0 0 auto',
           }}
-          aria-label="Remove"
-          role="button"
         >
           ×
         </span>
